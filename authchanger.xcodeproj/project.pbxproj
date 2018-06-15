@@ -23,6 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A387C4320D368FD00CF35EE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1A9553391FE4AD3200DB543F /* authchanger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = authchanger; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A95533C1FE4AD3200DB543F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -41,6 +42,7 @@
 		1A9553301FE4AD3200DB543F = {
 			isa = PBXGroup;
 			children = (
+				1A387C4320D368FD00CF35EE /* README.md */,
 				1A95533B1FE4AD3200DB543F /* authchanger */,
 				1A95533A1FE4AD3200DB543F /* Products */,
 			);
