@@ -192,6 +192,8 @@ if preLogin != nil || preAuth != nil || postAuth != nil {
         newMechs = preLogin!
     }
     
+    newMechs.append(contentsOf: mechs)
+    
     // get the login mech
     
     getLogin()
@@ -207,18 +209,20 @@ if preLogin != nil || preAuth != nil || postAuth != nil {
         if postAuth != nil {
             newMechs.append(contentsOf: postAuth!)
         }
-    } else {
-        
-        // other things are probably broken, but lets add in the mechs from the original set
-        newMechs.append(contentsOf: mechs)
     }
     
     // swap new set in for old set
     mechs = newMechs
 }
 
-
+if CommandLine.arguments.contains("-debug") {
+    print("*** Mech List ***")
+    for mech in mechs {
+        print("\t\(mech)")
+    }
+} else {
 
 rightsDict[kmechanisms] = mechs as AnyObject
 
 err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, "not sure why we need this" as CFString, nil, nil)
+}
