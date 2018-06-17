@@ -47,6 +47,7 @@ let kLONotify = "NoMADLoginOkta:Notify"
 var rights : CFDictionary? = nil
 var err = OSStatus.init(0)
 var authRef : AuthorizationRef? = nil
+var mechs = [String]()
 
 // Arguments
 
@@ -57,15 +58,46 @@ var preAuth : [String]?
 var postAuth : [String]?
 var AD = false
 var Okta = false
+var stashPath : String?
 
 // Index keys
 
 var loginIndex : Int?
 var authIndex : Int?
 
+///MARK: helper functions
+
+func getLogin() {
+    // find the loginwindow UI index
+    
+    loginIndex = mechs.index(of: kloginwindow_ui)
+    
+    if loginIndex == nil {
+        // try for AD
+        loginIndex = mechs.index(of: kLACheckAD)
+    }
+    
+    if loginIndex == nil {
+        loginIndex = mechs.index(of: kLOCheckOkta)
+    }
+}
+
 // get all of the CLI args, and parse them
 
 let args = CommandLine.arguments
+
+for i in 0...(args.count - 2) {
+    
+    if args[i] == "-preLogin" {
+        preLogin = args[i + 1].components(separatedBy: ", ")
+    } else if args[i] == "-preAuth" {
+        preAuth = args[i + 1].components(separatedBy: ", ")
+    } else if args[i] == "-postAuth" {
+        postAuth = args[i + 1].components(separatedBy: ", ")
+    } else if args[i] == "-stash" {
+        stashPath = args[i + 1]
+    }
+}
 
 if args.contains("-AD") {
     AD = true
@@ -92,7 +124,12 @@ err = AuthorizationRightGet(kSystemRightConsole, &rights)
 // Now to iterate through the list and add what we need
 
 var rightsDict = rights as! Dictionary<String,AnyObject>
-var mechs: Array = rightsDict[kmechanisms] as! Array<String>
+mechs = rightsDict[kmechanisms] as! Array<String>
+
+if stashPath != nil {
+    
+    try? String(describing: mechs).write(to: URL.init(fileURLWithPath: stashPath!), atomically: true, encoding: String.Encoding.utf8)
+}
 
 // reset the settings if asked
 
@@ -101,18 +138,7 @@ if CommandLine.arguments.contains("-reset") {
     mechs = defaultMechs
 }
 
-// find the loginwindow UI index
-
-loginIndex = mechs.index(of: kloginwindow_ui)
-
-if loginIndex == nil {
-    // try for AD
-    loginIndex = mechs.index(of: kLACheckAD)
-}
-
-if loginIndex == nil {
-    loginIndex = mechs.index(of: kLOCheckOkta)
-}
+getLogin()
 
 // if asked print the mechs
 
@@ -148,8 +174,6 @@ if AD {
         mechs.insert(kLOCreateUser, at: loginIndex! + 2)
         mechs.insert(kLODeMobilize, at: loginIndex! + 3)
         
-        //mechs.insert("NoMADLogin:Notify", at: index! - 1)
-        
         // add EnableFDE at the end
         
         mechs.append(kLOEnableFDE)
@@ -160,17 +184,41 @@ if AD {
     }
 }
 
+if preLogin != nil || preAuth != nil || postAuth != nil {
+    
+    var newMechs = [String]()
+    
+    if preLogin != nil {
+        newMechs = preLogin!
+    }
+    
+    // get the login mech
+    
+    getLogin()
+    
+    if loginIndex != nil {
+        
+        if preAuth != nil {
+            for i in 0...(preAuth!.count - 1) {
+                newMechs.insert(preAuth![i], at: loginIndex! + ( i + 1 ))
+            }
+        }
+        
+        if postAuth != nil {
+            newMechs.append(contentsOf: postAuth!)
+        }
+    } else {
+        
+        // other things are probably broken, but lets add in the mechs from the original set
+        newMechs.append(contentsOf: mechs)
+    }
+    
+    // swap new set in for old set
+    mechs = newMechs
+}
+
+
+
 rightsDict[kmechanisms] = mechs as AnyObject
 
 err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, "not sure why we need this" as CFString, nil, nil)
-
-/*
- ///MARK: Factory functions
- 
- func removeAndAdd(mech: String, index: Int) {
- if mechs.contains(mech) {
- // remove the mech first
- 
- }
- }
- */
