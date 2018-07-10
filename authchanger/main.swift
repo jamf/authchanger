@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.1"
+let version = "1.1.2"
 
 // defaults - macOS 10.13
 
@@ -44,6 +44,12 @@ let kLOSierraFixes = "NoMADLoginOkta:SierraFixes,privileged"
 let kLOKeychainAdd = "NoMADLoginOkta:KeychainAdd,privileged"
 let kLONotify = "NoMADLoginOkta:Notify"
 
+// Setup mechanisms
+
+let kLSSetup = "NoMADLoginSetup:Setup"
+let kLSRunScript = "NoMADLoginSetup:RunScript,privileged"
+let kLSNotify = "NoMADLoginSetup:Notify"
+
 var rights : CFDictionary? = nil
 var err = OSStatus.init(0)
 var authRef : AuthorizationRef? = nil
@@ -58,6 +64,7 @@ var preAuth : [String]?
 var postAuth : [String]?
 var AD = false
 var Okta = false
+var setup = false
 var stashPath : String?
 
 // Index keys
@@ -103,6 +110,8 @@ if args.contains("-AD") {
     AD = true
 } else if args.contains("-Okta") {
     Okta = true
+} else if args.contains("-setup") {
+    setup = true
 }
 
 // print version and quit if asked
@@ -173,6 +182,21 @@ if AD {
         mechs.insert(kLOPowerControl, at: loginIndex! + 1)
         mechs.insert(kLOCreateUser, at: loginIndex! + 2)
         mechs.insert(kLODeMobilize, at: loginIndex! + 3)
+        
+        // add EnableFDE at the end
+        
+        mechs.append(kLOEnableFDE)
+        mechs.append(kLOSierraFixes)
+        mechs.append(kLOKeychainAdd)
+    } else {
+        print("Unable to get the login mechanism")
+    }
+} else if setup {
+    if loginIndex != nil {
+        mechs[loginIndex!] = kLSSetup
+        mechs.insert(kLSRunScript, at: loginIndex! + 1)
+        mechs.insert(kLSNotify, at: loginIndex! + 2)
+        mechs.insert(kLOCreateUser, at: loginIndex! + 3)
         
         // add EnableFDE at the end
         
