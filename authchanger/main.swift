@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.1.2"
+let version = "1.1.4"
 
 // defaults - macOS 10.13
 
@@ -44,6 +44,21 @@ let kLOSierraFixes = "NoMADLoginOkta:SierraFixes,privileged"
 let kLOKeychainAdd = "NoMADLoginOkta:KeychainAdd,privileged"
 let kLONotify = "NoMADLoginOkta:Notify"
 
+// Azure mechanisms
+
+let kLACheckAzure = "NoMADLoginOkta:CheckAzure"
+
+// Ping mechanisms
+
+let kLPCheckPing = "NoMADLoginPing:CheckPing"
+let kLPPowerControl = "NoMADLoginPing:PowerControl,privileged"
+let kLPCreateUser = "NoMADLoginPing:CreateUser,privileged"
+let kLPDeMobilize = "NoMADLoginPing:DeMobilize,privileged"
+let kLPEnableFDE = "NoMADLoginPing:EnableFDE,privileged"
+let kLPSierraFixes = "NoMADLoginPing:SierraFixes,privileged"
+let kLPKeychainAdd = "NoMADLoginPing:KeychainAdd,privileged"
+let kLPNotify = "NoMADLoginPing:Notify"
+
 // Setup mechanisms
 
 let kLSSetup = "NoMADLoginSetup:Setup"
@@ -64,6 +79,8 @@ var preAuth : [String]?
 var postAuth : [String]?
 var AD = false
 var Okta = false
+var Azure = false
+var Ping = false
 var setup = false
 var stashPath : String?
 
@@ -112,6 +129,10 @@ if args.contains("-AD") {
     Okta = true
 } else if args.contains("-setup") {
     setup = true
+} else if args.contains("-Azure") {
+    Azure = true
+} else if args.contains("-Ping") {
+    Ping = true
 }
 
 // print version and quit if asked
@@ -191,18 +212,42 @@ if AD {
     } else {
         print("Unable to get the login mechanism")
     }
-} else if setup {
+} else if Azure {
     if loginIndex != nil {
-        mechs[loginIndex!] = kLSSetup
-        mechs.insert(kLSRunScript, at: loginIndex! + 1)
-        mechs.insert(kLSNotify, at: loginIndex! + 2)
-        mechs.insert(kLOCreateUser, at: loginIndex! + 3)
+        mechs[loginIndex!] = kLACheckAzure
+        mechs.insert(kLOPowerControl, at: loginIndex! + 1)
+        mechs.insert(kLOCreateUser, at: loginIndex! + 2)
+        mechs.insert(kLODeMobilize, at: loginIndex! + 3)
         
         // add EnableFDE at the end
         
         mechs.append(kLOEnableFDE)
         mechs.append(kLOSierraFixes)
         mechs.append(kLOKeychainAdd)
+    } else {
+        print("Unable to get the login mechanism")
+    }
+} else if setup {
+    if loginIndex != nil {
+        mechs[loginIndex!] = kLSSetup
+        mechs.insert(kLSRunScript, at: loginIndex! + 1)
+        mechs.insert(kLSNotify, at: loginIndex! + 2)
+                
+    } else {
+        print("Unable to get the login mechanism")
+    }
+} else if Ping {
+    if loginIndex != nil {
+        mechs[loginIndex!] = kLPCheckPing
+        mechs.insert(kLPPowerControl, at: loginIndex! + 1)
+        mechs.insert(kLPCreateUser, at: loginIndex! + 2)
+        mechs.insert(kLPDeMobilize, at: loginIndex! + 3)
+        
+        // add EnableFDE at the end
+        
+        mechs.append(kLPEnableFDE)
+        mechs.append(kLPSierraFixes)
+        mechs.append(kLPKeychainAdd)
     } else {
         print("Unable to get the login mechanism")
     }
