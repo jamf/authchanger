@@ -24,13 +24,14 @@ let defaultMechs = ["builtin:policy-banner", "loginwindow:login", "builtin:login
 // AD mechanisms
 
 let kLACheckAD = "NoMADLoginAD:CheckAD"
+let kLAEULA = "NoMADLoginAD:EULA"
 let kLAPowerControl = "NoMADLoginAD:PowerControl,privileged"
 let kLACreateUser = "NoMADLoginAD:CreateUser,privileged"
 let kLADeMobilize = "NoMADLoginAD:DeMobilize,privileged"
 let kLAEnableFDE = "NoMADLoginAD:EnableFDE,privileged"
-let kLASierraFixes = "NoMADLoginAD:SierraFixes,privileged"
 let kLAKeychainAdd = "NoMADLoginAD:KeychainAdd,privileged"
-let kLANotify = "NoMADLoginAD:Notify"
+let kLASierraFixes = "NoMADLoginAD:SierraFixes,privileged"
+//let kLANotify = "NoMADLoginAD:Notify"
 
 
 // Okta mechanisms
@@ -181,9 +182,10 @@ if CommandLine.arguments.contains("-print") {
 if AD {
     if loginIndex != nil {
         mechs[loginIndex!] = kLACheckAD
-        mechs.insert(kLAPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLACreateUser, at: loginIndex! + 2)
-        mechs.insert(kLADeMobilize, at: loginIndex! + 3)
+        mechs.insert(kLAEULA, at: loginIndex! + 1)
+        mechs.insert(kLAPowerControl, at: loginIndex! + 2)
+        mechs.insert(kLACreateUser, at: loginIndex! + 3)
+        mechs.insert(kLADeMobilize, at: loginIndex! + 4)
         
         //mechs.insert("NoMADLogin:Notify", at: index! - 1)
         
