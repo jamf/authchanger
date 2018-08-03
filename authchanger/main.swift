@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.1.4"
+let version = "1.1.5"
 
 // defaults - macOS 10.13
 
@@ -32,7 +32,6 @@ let kLAEnableFDE = "NoMADLoginAD:EnableFDE,privileged"
 let kLAKeychainAdd = "NoMADLoginAD:KeychainAdd,privileged"
 let kLASierraFixes = "NoMADLoginAD:SierraFixes,privileged"
 //let kLANotify = "NoMADLoginAD:Notify"
-
 
 // Okta mechanisms
 
@@ -105,6 +104,53 @@ func getLogin() {
     if loginIndex == nil {
         loginIndex = mechs.index(of: kLOCheckOkta)
     }
+}
+
+// check for a help arg
+
+if CommandLine.arguments.contains("-h") || CommandLine.arguments.contains("-help") {
+    
+    // print help statement
+    
+    let help = """
+authchanger is a utility to help you manage the authorization database used by macOS to determine how the login process progresses.
+
+Note: This utilty must be run as root.
+
+Some basic options:
+
+-version        : prints the version number
+-help | -h      : prints this help statement
+-reset          : resets the auth database to the factory settings
+-Okta           : sets up NoMAD Login+Okta
+-AD             : sets up NoMAD LoginAD
+-print          : prints the current list of authorization mechanisms
+-debug          : does a dry run of the changes and prints out what would have happened
+
+In addition to setting basic setups, you can also specify custom rules to be put in.
+
+-preLogin       : mechs to be used before the actual UI is shown
+-preAuth        : mechs to be used between the login UI and actual authentication
+-postAuth       : mechs to be used after system authentication
+
+Useage
+
+    authchanger -reset -AD
+
+Will ensure that the authdb is reset to factory defaults and then enable NoMAD LoginAD.
+
+    authchanger -print
+
+Will display the current authdb settings.
+
+    authchanger -debug -reset -Okta -preLogin "NoMADLoginOkta:RunScript,privileged, NoMADLoginOkta:Notify"
+
+Will reset the authdb then add NoMAD Login+Okta settings and and the RunScript and Notify mechanisms before the NoMAD Login+Okta UI is shown. The -debug flag will show you the resulting output without actually making the change.
+
+"""
+    
+    print(help)
+    exit(0)
 }
 
 // get all of the CLI args, and parse them
