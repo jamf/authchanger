@@ -341,5 +341,5 @@ if CommandLine.arguments.contains("-debug") {
 
 rightsDict[kmechanisms] = mechs as AnyObject
 
-err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, "not sure why we need this" as CFString, nil, nil)
+err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, nil, nil, nil)
 }
