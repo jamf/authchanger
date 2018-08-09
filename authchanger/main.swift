@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.1.5"
+let version = "1.1.6"
 
 // defaults - macOS 10.13
 
@@ -46,7 +46,14 @@ let kLONotify = "NoMADLoginOkta:Notify"
 
 // Azure mechanisms
 
-let kLACheckAzure = "NoMADLoginOkta:CheckAzure"
+let kLAzCheckAzure = "NoMADLoginAzure:CheckAzure"
+let kLAzPowerControl = "NoMADLoginAzure:PowerControl,privileged"
+let kLAzCreateUser = "NoMADLoginAzure:CreateUser,privileged"
+let kLAzDeMobilize = "NoMADLoginAzure:DeMobilize,privileged"
+let kLAzEnableFDE = "NoMADLoginAzure:EnableFDE,privileged"
+let kLAzSierraFixes = "NoMADLoginAzure:SierraFixes,privileged"
+let kLAzKeychainAdd = "NoMADLoginAzure:KeychainAdd,privileged"
+let kLAzNotify = "NoMADLoginAzure:Notify"
 
 // Ping mechanisms
 
@@ -262,16 +269,16 @@ if AD {
     }
 } else if Azure {
     if loginIndex != nil {
-        mechs[loginIndex!] = kLACheckAzure
-        mechs.insert(kLOPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLOCreateUser, at: loginIndex! + 2)
-        mechs.insert(kLODeMobilize, at: loginIndex! + 3)
+        mechs[loginIndex!] = kLAzCheckAzure
+        mechs.insert(kLAzPowerControl, at: loginIndex! + 1)
+        mechs.insert(kLAzCreateUser, at: loginIndex! + 2)
+        mechs.insert(kLAzDeMobilize, at: loginIndex! + 3)
         
         // add EnableFDE at the end
         
-        mechs.append(kLOEnableFDE)
-        mechs.append(kLOSierraFixes)
-        mechs.append(kLOKeychainAdd)
+        mechs.append(kLAzEnableFDE)
+        mechs.append(kLAzSierraFixes)
+        mechs.append(kLAzKeychainAdd)
     } else {
         print("Unable to get the login mechanism")
     }
