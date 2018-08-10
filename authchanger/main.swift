@@ -235,8 +235,8 @@ if CommandLine.arguments.contains("-print") {
 if AD {
     if loginIndex != nil {
         mechs[loginIndex!] = kLACheckAD
-        mechs.insert(kLAEULA, at: loginIndex! + 1)
-        mechs.insert(kLAPowerControl, at: loginIndex! + 2)
+        mechs.insert(kLAPowerControl, at: loginIndex! + 1)
+        mechs.insert(kLAEULA, at: loginIndex! + 2)
         mechs.insert(kLACreateUser, at: loginIndex! + 3)
         mechs.insert(kLADeMobilize, at: loginIndex! + 4)
         
