@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.1.6"
+let version = "1.1.7"
 
 // defaults - macOS 10.13
 
@@ -88,6 +88,7 @@ var AD = false
 var Okta = false
 var Azure = false
 var Ping = false
+var deMobilize = false
 var setup = false
 var stashPath : String?
 
@@ -187,6 +188,8 @@ if args.contains("-AD") {
     Azure = true
 } else if args.contains("-Ping") {
     Ping = true
+} else if args.contains("-Demobilize") {
+    deMobilize = true
 }
 
 // print version and quit if asked
@@ -303,6 +306,12 @@ if AD {
         mechs.append(kLPEnableFDE)
         mechs.append(kLPSierraFixes)
         mechs.append(kLPKeychainAdd)
+    } else {
+        print("Unable to get the login mechanism")
+    }
+} else if deMobilize {
+    if loginIndex != nil {
+        mechs.insert(kLADeMobilize, at: loginIndex! + 1)
     } else {
         print("Unable to get the login mechanism")
     }
