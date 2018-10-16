@@ -132,7 +132,7 @@ Some basic options:
 -reset          : resets the auth database to the factory settings
 -Okta           : sets up NoMAD Login+Okta
 -AD             : sets up NoMAD LoginAD
--demobilze      : sets up NoMAD LoginAD to only demobilze accounts
+-demobilize      : sets up NoMAD LoginAD to only demobilze accounts
 -print          : prints the current list of authorization mechanisms
 -debug          : does a dry run of the changes and prints out what would have happened
 
