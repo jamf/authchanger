@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.1.7"
+let version = "1.1.8"
 
 // defaults - macOS 10.13
 
@@ -188,7 +188,7 @@ if args.contains("-AD") {
     Azure = true
 } else if args.contains("-Ping") {
     Ping = true
-} else if args.contains("-Demobilize") {
+} else if args.contains("-demobilize") {
     deMobilize = true
 }
 
