@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.1.8"
+let version = "1.2"
 
 // defaults - macOS 10.13
 
@@ -72,6 +72,35 @@ let kLSSetup = "NoMADLoginSetup:Setup"
 let kLSRunScript = "NoMADLoginSetup:RunScript,privileged"
 let kLSNotify = "NoMADLoginSetup:Notify"
 
+// System Preferences
+
+let kSPNetwork = "system.preferences.network"
+let kSPNetworkConfiguration = "system.services.systemconfiguration.network"
+
+let azureRule : [ String : Any ] = [
+    "version" : 1 as Int,
+    "comment" : "Rule to allow for Azure authentication" as String,
+    "mechanisms" : [ "NoMADLoginAzure:AuthUI" ] as [String],
+    "class" : "evaluate-mechanisms" as String,
+    "shared" : true as Bool,
+    "tries" : 10000 as Int
+]
+
+let defaultRule : [ String : Any ] = [
+    "group": "admin",
+    "timeout": 2147483647,
+    "version": 0,
+    "tries": 10000,
+    "comment": "Checked by the Admin framework when making changes to the Network preference pane.",
+    "modified": 555548986.9298199,
+    "class": "user",
+    "session-owner": 0,
+    "authenticate-user": 1,
+    "created": 555548986.9298199,
+    "shared": 1,
+    "allow-root": 1
+]
+
 var rights : CFDictionary? = nil
 var err = OSStatus.init(0)
 var authRef : AuthorizationRef? = nil
@@ -114,6 +143,12 @@ func getLogin() {
     }
 }
 
+err = AuthorizationRightGet(kSPNetwork, &rights)
+
+var tempRights = rights as! Dictionary<String,AnyObject>
+
+print(tempRights)
+
 // check for a help arg
 
 if CommandLine.arguments.contains("-h") || CommandLine.arguments.contains("-help") {
@@ -122,6 +157,8 @@ if CommandLine.arguments.contains("-h") || CommandLine.arguments.contains("-help
     
     let help = """
 authchanger is a utility to help you manage the authorization database used by macOS to determine how the login process progresses.
+
+version: \(version)
 
 Note: This utilty must be run as root.
 
@@ -132,9 +169,15 @@ Some basic options:
 -reset          : resets the auth database to the factory settings
 -Okta           : sets up NoMAD Login+Okta
 -AD             : sets up NoMAD LoginAD
--demobilize      : sets up NoMAD LoginAD to only demobilze accounts
+-Azure          : sets up NoMAD Login Azure
+-demobilize     : sets up NoMAD LoginAD to only demobilze accounts
 -print          : prints the current list of authorization mechanisms
 -debug          : does a dry run of the changes and prints out what would have happened
+
+Experimental options for working with Admin authorization:
+    
+-SysPrefs       : enables Azure auhentication for the Network Preference Pane
+-SysPrefsReset  : removes Azure authentication for the Network Preference Pane
 
 In addition to setting basic setups, you can also specify custom rules to be put in.
 
@@ -359,4 +402,17 @@ if CommandLine.arguments.contains("-debug") {
 rightsDict[kmechanisms] = mechs as AnyObject
 
 err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, nil, nil, nil)
+}
+
+if CommandLine.arguments.contains("-SysPrefs") {
+
+    err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, azureRule as CFTypeRef, nil, nil, nil)
+    
+    err = AuthorizationRightSet(authRef!, kSPNetwork, azureRule as CFTypeRef, nil, nil, nil)
+}
+
+if CommandLine.arguments.contains("-SysPrefsReset") {
+    err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, defaultRule as CFTypeRef, nil, nil, nil)
+    
+    err = AuthorizationRightSet(authRef!, kSPNetwork, defaultRule as CFTypeRef, nil, nil, nil)
 }
