@@ -15,7 +15,7 @@ let kloginwindow_success = "loginwindow:success"
 let klogindindow_home = "HomeDirMechanism:status"
 let kmechanisms = "mechanisms"
 
-let version = "1.2"
+let version = "1.2.1"
 
 // defaults - macOS 10.13
 
@@ -76,6 +76,7 @@ let kLSNotify = "NoMADLoginSetup:Notify"
 
 let kSPNetwork = "system.preferences.network"
 let kSPNetworkConfiguration = "system.services.systemconfiguration.network"
+let kSPsudoSAML = "com.jamf.connect.sudosaml"
 
 let azureRule : [ String : Any ] = [
     "version" : 1 as Int,
@@ -105,6 +106,7 @@ var rights : CFDictionary? = nil
 var err = OSStatus.init(0)
 var authRef : AuthorizationRef? = nil
 var mechs = [String]()
+var mechChange = false
 
 // Arguments
 
@@ -388,8 +390,11 @@ if preLogin != nil || preAuth != nil || postAuth != nil {
         }
     }
     
-    // swap new set in for old set
-    mechs = newMechs
+    if newMechs != mechs {
+        // swap new set in for old set
+        mechs = newMechs
+        mechChange = true
+    }
 }
 
 if CommandLine.arguments.contains("-debug") {
@@ -401,18 +406,43 @@ if CommandLine.arguments.contains("-debug") {
 
 rightsDict[kmechanisms] = mechs as AnyObject
 
-err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, nil, nil, nil)
+    if mechChange && NSUserName() == "root" {
+        err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, nil, nil, nil)
+    } else if mechChange && NSUserName() != "root" {
+        print("Not root, unable to change mechanisms.")
+    } else if !mechChange {
+        print("No change to current mechansims.")
+    }
 }
 
 if CommandLine.arguments.contains("-SysPrefs") {
-
-    err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, azureRule as CFTypeRef, nil, nil, nil)
+    if NSUserName() == "root" {
+        err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, azureRule as CFTypeRef, nil, nil, nil)
     
-    err = AuthorizationRightSet(authRef!, kSPNetwork, azureRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, kSPNetwork, azureRule as CFTypeRef, nil, nil, nil)
+    } else {
+        print("Not root, unable to make changes")
+    }
 }
 
 if CommandLine.arguments.contains("-SysPrefsReset") {
-    err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, defaultRule as CFTypeRef, nil, nil, nil)
+    if NSUserName() == "root" {
+
+        err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, defaultRule as CFTypeRef, nil, nil, nil)
     
-    err = AuthorizationRightSet(authRef!, kSPNetwork, defaultRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, kSPNetwork, defaultRule as CFTypeRef, nil, nil, nil)
+    } else {
+        print("Not root, unable to make changes")
+
+    }
+}
+
+if CommandLine.arguments.contains("-AddDefaultJCRight") {
+    if NSUserName() == "root" {
+        
+        err = AuthorizationRightSet(authRef!, kSPsudoSAML, azureRule as CFTypeRef, nil, nil, nil)
+    } else {
+        print("Not root, unable to make changes")
+        
+    }
 }
