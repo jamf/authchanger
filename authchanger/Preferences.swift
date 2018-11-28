@@ -149,7 +149,7 @@ class Preferences {
     """*/
     
     func help(){
-        var help = """
+        let help = """
         authchanger is a utility to help you manage the authorization database used by macOS to determine how the login process progresses.
         
         version: \(self.version)

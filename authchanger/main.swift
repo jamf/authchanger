@@ -11,103 +11,6 @@ import Security.AuthorizationDB
 
 let preferences = Preferences()
 
-// TO BE REMOVED BELOW
-
-let kSystemRightConsole = "system.login.console"
-let kloginwindow_ui = "loginwindow:login"
-let kloginwindow_success = "loginwindow:success"
-let klogindindow_home = "HomeDirMechanism:status"
-let kmechanisms = "mechanisms"
-
-let version = "1.2.1"
-
-// defaults - macOS 10.13
-
-let defaultMechs = ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
-
-// AD mechanisms
-
-let kLACheckAD = "NoMADLoginAD:CheckAD"
-let kLAEULA = "NoMADLoginAD:EULA"
-let kLAPowerControl = "NoMADLoginAD:PowerControl,privileged"
-let kLACreateUser = "NoMADLoginAD:CreateUser,privileged"
-let kLADeMobilize = "NoMADLoginAD:DeMobilize,privileged"
-let kLAEnableFDE = "NoMADLoginAD:EnableFDE,privileged"
-let kLAKeychainAdd = "NoMADLoginAD:KeychainAdd,privileged"
-let kLASierraFixes = "NoMADLoginAD:SierraFixes,privileged"
-//let kLANotify = "NoMADLoginAD:Notify"
-
-// Okta mechanisms
-
-let kLOCheckOkta = "NoMADLoginOkta:CheckOkta"
-let kLOPowerControl = "NoMADLoginOkta:PowerControl,privileged"
-let kLOCreateUser = "NoMADLoginOkta:CreateUser,privileged"
-let kLODeMobilize = "NoMADLoginOkta:DeMobilize,privileged"
-let kLOEnableFDE = "NoMADLoginOkta:EnableFDE,privileged"
-let kLOSierraFixes = "NoMADLoginOkta:SierraFixes,privileged"
-let kLOKeychainAdd = "NoMADLoginOkta:KeychainAdd,privileged"
-let kLONotify = "NoMADLoginOkta:Notify"
-
-// Azure mechanisms
-
-let kLAzCheckAzure = "NoMADLoginAzure:CheckAzure"
-let kLAzPowerControl = "NoMADLoginAzure:PowerControl,privileged"
-let kLAzCreateUser = "NoMADLoginAzure:CreateUser,privileged"
-let kLAzDeMobilize = "NoMADLoginAzure:DeMobilize,privileged"
-let kLAzEnableFDE = "NoMADLoginAzure:EnableFDE,privileged"
-let kLAzSierraFixes = "NoMADLoginAzure:SierraFixes,privileged"
-let kLAzKeychainAdd = "NoMADLoginAzure:KeychainAdd,privileged"
-let kLAzNotify = "NoMADLoginAzure:Notify"
-
-// Ping mechanisms
-
-let kLPCheckPing = "NoMADLoginPing:CheckPing"
-let kLPPowerControl = "NoMADLoginPing:PowerControl,privileged"
-let kLPCreateUser = "NoMADLoginPing:CreateUser,privileged"
-let kLPDeMobilize = "NoMADLoginPing:DeMobilize,privileged"
-let kLPEnableFDE = "NoMADLoginPing:EnableFDE,privileged"
-let kLPSierraFixes = "NoMADLoginPing:SierraFixes,privileged"
-let kLPKeychainAdd = "NoMADLoginPing:KeychainAdd,privileged"
-let kLPNotify = "NoMADLoginPing:Notify"
-
-// Setup mechanisms
-
-let kLSSetup = "NoMADLoginSetup:Setup"
-let kLSRunScript = "NoMADLoginSetup:RunScript,privileged"
-let kLSNotify = "NoMADLoginSetup:Notify"
-
-// System Preferences
-
-let kSPNetwork = "system.preferences.network"
-let kSPNetworkConfiguration = "system.services.systemconfiguration.network"
-let kSPsudoSAML = "com.jamf.connect.sudosaml"
-
-let azureRule : [ String : Any ] = [
-    "version" : 1 as Int,
-    "comment" : "Rule to allow for Azure authentication" as String,
-    "mechanisms" : [ "NoMADLoginAzure:AuthUI" ] as [String],
-    "class" : "evaluate-mechanisms" as String,
-    "shared" : true as Bool,
-    "tries" : 10000 as Int
-]
-
-let defaultRule : [ String : Any ] = [
-    "group": "admin",
-    "timeout": 2147483647,
-    "version": 0,
-    "tries": 10000,
-    "comment": "Checked by the Admin framework when making changes to the Network preference pane.",
-    "modified": 555548986.9298199,
-    "class": "user",
-    "session-owner": 0,
-    "authenticate-user": 1,
-    "created": 555548986.9298199,
-    "shared": 1,
-    "allow-root": 1
-]
-
-// TO BE REMOVED ABOVEs
-
 var rights : CFDictionary? = nil
 var err = OSStatus.init(0)
 var authRef : AuthorizationRef? = nil
@@ -139,19 +42,19 @@ var authIndex : Int?
 func getLogin() {
     // find the loginwindow UI index
     
-    loginIndex = mechs.index(of: kloginwindow_ui)
+    loginIndex = mechs.index(of: preferences.kloginwindow_ui)
     
     if loginIndex == nil {
         // try for AD
-        loginIndex = mechs.index(of: kLACheckAD)
+        loginIndex = mechs.index(of: preferences.kLACheckAD)
     }
     
     if loginIndex == nil {
-        loginIndex = mechs.index(of: kLOCheckOkta)
+        loginIndex = mechs.index(of: preferences.kLOCheckOkta)
     }
 }
 
-err = AuthorizationRightGet(kSPNetwork, &rights)
+err = AuthorizationRightGet(preferences.kSPNetwork, &rights)
 
 // check for a help arg
 
@@ -194,7 +97,7 @@ if args.contains("-AD") {
 // print version and quit if asked
 
 if args.contains("-version") {
-    print(version)
+    print(preferences.version)
     exit(0)
 }
 
@@ -205,12 +108,12 @@ err = AuthorizationCreate(nil, nil, AuthorizationFlags(rawValue: 0), &authRef)
 
 // get the current rights for system.login.console
 
-err = AuthorizationRightGet(kSystemRightConsole, &rights)
+err = AuthorizationRightGet(preferences.kSystemRightConsole, &rights)
 
 // Now to iterate through the list and add what we need
 
 var rightsDict = rights as! Dictionary<String,AnyObject>
-mechs = rightsDict[kmechanisms] as! Array<String>
+mechs = rightsDict[preferences.kmechanisms] as! Array<String>
 
 if stashPath != nil {
     
@@ -221,7 +124,7 @@ if stashPath != nil {
 
 if CommandLine.arguments.contains("-reset") {
     mechs.removeAll()
-    mechs = defaultMechs
+    mechs = preferences.defaultMechs
 }
 
 getLogin()
@@ -236,19 +139,19 @@ if CommandLine.arguments.contains("-print") {
 
 if AD {
     if loginIndex != nil {
-        mechs[loginIndex!] = kLACheckAD
-        mechs.insert(kLAPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLAEULA, at: loginIndex! + 2)
-        mechs.insert(kLACreateUser, at: loginIndex! + 3)
-        mechs.insert(kLADeMobilize, at: loginIndex! + 4)
+        mechs[loginIndex!] = preferences.kLACheckAD
+        mechs.insert(preferences.kLAPowerControl, at: loginIndex! + 1)
+        mechs.insert(preferences.kLAEULA, at: loginIndex! + 2)
+        mechs.insert(preferences.kLACreateUser, at: loginIndex! + 3)
+        mechs.insert(preferences.kLADeMobilize, at: loginIndex! + 4)
         
         //mechs.insert("NoMADLogin:Notify", at: index! - 1)
         
         // add EnableFDE at the end
         
-        mechs.append(kLAEnableFDE)
-        mechs.append(kLASierraFixes)
-        mechs.append(kLAKeychainAdd)
+        mechs.append(preferences.kLAEnableFDE)
+        mechs.append(preferences.kLASierraFixes)
+        mechs.append(preferences.kLAKeychainAdd)
     } else {
         print("Unable to get the login mechanism")
     }
@@ -256,61 +159,61 @@ if AD {
 } else if Okta {
     
     if loginIndex != nil {
-        mechs[loginIndex!] = kLOCheckOkta
-        mechs.insert(kLOPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLOCreateUser, at: loginIndex! + 2)
-        mechs.insert(kLODeMobilize, at: loginIndex! + 3)
+        mechs[loginIndex!] = preferences.kLOCheckOkta
+        mechs.insert(preferences.kLOPowerControl, at: loginIndex! + 1)
+        mechs.insert(preferences.kLOCreateUser, at: loginIndex! + 2)
+        mechs.insert(preferences.kLODeMobilize, at: loginIndex! + 3)
         
         // add EnableFDE at the end
         
-        mechs.append(kLOEnableFDE)
-        mechs.append(kLOSierraFixes)
-        mechs.append(kLOKeychainAdd)
+        mechs.append(preferences.kLOEnableFDE)
+        mechs.append(preferences.kLOSierraFixes)
+        mechs.append(preferences.kLOKeychainAdd)
     } else {
         print("Unable to get the login mechanism")
     }
 } else if Azure {
     if loginIndex != nil {
-        mechs[loginIndex!] = kLAzCheckAzure
-        mechs.insert(kLAzPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLAzCreateUser, at: loginIndex! + 2)
-        mechs.insert(kLAzDeMobilize, at: loginIndex! + 3)
+        mechs[loginIndex!] = preferences.kLAzCheckAzure
+        mechs.insert(preferences.kLAzPowerControl, at: loginIndex! + 1)
+        mechs.insert(preferences.kLAzCreateUser, at: loginIndex! + 2)
+        mechs.insert(preferences.kLAzDeMobilize, at: loginIndex! + 3)
         
         // add EnableFDE at the end
         
-        mechs.append(kLAzEnableFDE)
-        mechs.append(kLAzSierraFixes)
-        mechs.append(kLAzKeychainAdd)
+        mechs.append(preferences.kLAzEnableFDE)
+        mechs.append(preferences.kLAzSierraFixes)
+        mechs.append(preferences.kLAzKeychainAdd)
     } else {
         print("Unable to get the login mechanism")
     }
 } else if setup {
     if loginIndex != nil {
-        mechs[loginIndex!] = kLSSetup
-        mechs.insert(kLSRunScript, at: loginIndex! + 1)
-        mechs.insert(kLSNotify, at: loginIndex! + 2)
+        mechs[loginIndex!] = preferences.kLSSetup
+        mechs.insert(preferences.kLSRunScript, at: loginIndex! + 1)
+        mechs.insert(preferences.kLSNotify, at: loginIndex! + 2)
                 
     } else {
         print("Unable to get the login mechanism")
     }
 } else if Ping {
     if loginIndex != nil {
-        mechs[loginIndex!] = kLPCheckPing
-        mechs.insert(kLPPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLPCreateUser, at: loginIndex! + 2)
-        mechs.insert(kLPDeMobilize, at: loginIndex! + 3)
+        mechs[loginIndex!] = preferences.kLPCheckPing
+        mechs.insert(preferences.kLPPowerControl, at: loginIndex! + 1)
+        mechs.insert(preferences.kLPCreateUser, at: loginIndex! + 2)
+        mechs.insert(preferences.kLPDeMobilize, at: loginIndex! + 3)
         
         // add EnableFDE at the end
         
-        mechs.append(kLPEnableFDE)
-        mechs.append(kLPSierraFixes)
-        mechs.append(kLPKeychainAdd)
+        mechs.append(preferences.kLPEnableFDE)
+        mechs.append(preferences.kLPSierraFixes)
+        mechs.append(preferences.kLPKeychainAdd)
     } else {
         print("Unable to get the login mechanism")
     }
 } else if deMobilize {
     if loginIndex != nil {
-        mechs.insert(kLADeMobilize, at: loginIndex! + 1)
+        mechs.insert(preferences.kLADeMobilize, at: loginIndex! + 1)
     } else {
         print("Unable to get the login mechanism")
     }
@@ -357,10 +260,10 @@ if CommandLine.arguments.contains("-debug") {
     }
 } else {
 
-rightsDict[kmechanisms] = mechs as AnyObject
+rightsDict[preferences.kmechanisms] = mechs as AnyObject
 
     if mechChange && NSUserName() == "root" {
-        err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSystemRightConsole, rightsDict as CFTypeRef, nil, nil, nil)
     } else if mechChange && NSUserName() != "root" {
         print("Not root, unable to change mechanisms.")
     } else if !mechChange {
@@ -370,9 +273,9 @@ rightsDict[kmechanisms] = mechs as AnyObject
 
 if CommandLine.arguments.contains("-SysPrefs") {
     if NSUserName() == "root" {
-        err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, azureRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.azureRule as CFTypeRef, nil, nil, nil)
     
-        err = AuthorizationRightSet(authRef!, kSPNetwork, azureRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.azureRule as CFTypeRef, nil, nil, nil)
     } else {
         print("Not root, unable to make changes")
     }
@@ -381,9 +284,9 @@ if CommandLine.arguments.contains("-SysPrefs") {
 if CommandLine.arguments.contains("-SysPrefsReset") {
     if NSUserName() == "root" {
 
-        err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, defaultRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.defaultRule as CFTypeRef, nil, nil, nil)
     
-        err = AuthorizationRightSet(authRef!, kSPNetwork, defaultRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.defaultRule as CFTypeRef, nil, nil, nil)
     } else {
         print("Not root, unable to make changes")
 
@@ -393,7 +296,7 @@ if CommandLine.arguments.contains("-SysPrefsReset") {
 if CommandLine.arguments.contains("-AddDefaultJCRight") {
     if NSUserName() == "root" {
         
-        err = AuthorizationRightSet(authRef!, kSPsudoSAML, azureRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPsudoSAML, preferences.azureRule as CFTypeRef, nil, nil, nil)
     } else {
         print("Not root, unable to make changes")
         
