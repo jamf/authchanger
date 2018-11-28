@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1A95533D1FE4AD3200DB543F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A95533C1FE4AD3200DB543F /* main.swift */; };
 		FC9AC10721AEC7F600025552 /* authorizationdb.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9AC10621AEC7F600025552 /* authorizationdb.swift */; };
+		FC9AC10921AED31500025552 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9AC10821AED31500025552 /* Preferences.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,7 @@
 		1A9553391FE4AD3200DB543F /* authchanger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = authchanger; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A95533C1FE4AD3200DB543F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		FC9AC10621AEC7F600025552 /* authorizationdb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = authorizationdb.swift; sourceTree = "<group>"; };
+		FC9AC10821AED31500025552 /* Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preferences.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 			children = (
 				1A95533C1FE4AD3200DB543F /* main.swift */,
 				FC9AC10621AEC7F600025552 /* authorizationdb.swift */,
+				FC9AC10821AED31500025552 /* Preferences.swift */,
 			);
 			path = authchanger;
 			sourceTree = "<group>";
@@ -126,6 +129,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC9AC10921AED31500025552 /* Preferences.swift in Sources */,
 				1A95533D1FE4AD3200DB543F /* main.swift in Sources */,
 				FC9AC10721AEC7F600025552 /* authorizationdb.swift in Sources */,
 			);
