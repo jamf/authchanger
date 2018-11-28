@@ -16,16 +16,17 @@ var err = OSStatus.init(0)
 
 // New Hotness
 
+// full arguments list as single string
+let argString = CommandLine.arguments.joined().uppercased()
 
 // print help and quit if asked
-if CommandLine.arguments.contains("-h") || CommandLine.arguments.contains("-help") {
+if argString.contains("-H") || argString.contains("-HELP") {
     Preferences.help(Preferences())()
     exit(0)
 }
 
 // print version and quit if asked
-
-if CommandLine.arguments.contains("-version") {
+if argString.contains("-VERSION") {
     print(preferences.version)
     exit(0)
 }
@@ -76,18 +77,67 @@ func getImpactedEntries(arguments: [String]) -> [String]{
     return impactedEntries
 }
 
-func defaultMechanismAddition(editingConfiguration: Dictionary<String,CFDictionary>, mechDict: Dictionary<String, Any>) -> Dictionary<String,CFDictionary>{
+// default mechanism addition function to avoid the code replication in the initial version
+
+func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]], mechDict: [String: [String]]) -> [String: [String: AnyObject]]{
     
-    //TODO: Everything this function does
+    var tmpEditingConfiguration = editingConfiguration
     
-    return [:]
+    for impactedMech in (mechDict["impactedEntries"] as! [String]){
+        
+        var tmpEditingConfigurationMech = editingConfiguration[impactedMech]
+        var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+        
+        // flipping and adding the front mechanisms
+        editingMech.reverse()
+        for addingMech in mechDict["frontMechs"] as! [String]{
+            editingMech.insert(addingMech, at: editingMech.count - 1)
+        }
+        editingMech.reverse()
+        
+        // appending the rear mechanisms
+        for addingMech in mechDict["endMechs"] as! [String]{
+            editingMech.append(addingMech)
+        }
+        
+        // rebuilding the edited master authdb
+        tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+        tmpEditingConfiguration[impactedMech] = tmpEditingConfigurationMech
+    }
+    return tmpEditingConfiguration
 }
 
 // Getting the current configuration of the machine for the preferences necessary
 let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(arguments: CommandLine.arguments))
 
+// print version and quit if asked
+if argString.contains("-PRINT") {
+    dump(currentConfiguration)
+}
+
 // Making a copy of the configuraiton to edit
-var editingConfiguration = currentConfiguration
+var editingConfiguration = currentConfiguration as [String: [String: AnyObject]]
+
+if argString.contains("-AD") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.AD)
+} else if argString.contains("-AZURE") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Azure)
+} else if argString.contains("-OKTA") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Okta)
+} else if argString.contains("-SETUP") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Setup)
+} else if argString.contains("-PING") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Ping)
+} else if argString.contains("-DEMOBALIZE") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobalize)
+}
+
+
+if argString.contains("-DEBUG") {
+    dump(editingConfiguration)
+    exit(0)
+}
+
 
 
 
@@ -140,20 +190,6 @@ for i in 0...(args.count - 2) {
     }
 }
 
-if args.contains("-AD") {
-    AD = true
-} else if args.contains("-Okta") {
-    Okta = true
-} else if args.contains("-setup") {
-    setup = true
-} else if args.contains("-Azure") {
-    Azure = true
-} else if args.contains("-Ping") {
-    Ping = true
-} else if args.contains("-demobilize") {
-    deMobilize = true
-}
-
 // get an authorization context to save this back
 // need to be root, if we are this should return clean
 
@@ -190,26 +226,7 @@ if CommandLine.arguments.contains("-print") {
     }
 }
 
-if AD {
-    if loginIndex != nil {
-        mechs[loginIndex!] = preferences.kLACheckAD
-        mechs.insert(preferences.kLAPowerControl, at: loginIndex! + 1)
-        mechs.insert(preferences.kLAEULA, at: loginIndex! + 2)
-        mechs.insert(preferences.kLACreateUser, at: loginIndex! + 3)
-        mechs.insert(preferences.kLADeMobilize, at: loginIndex! + 4)
-        
-        //mechs.insert("NoMADLogin:Notify", at: index! - 1)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(preferences.kLAEnableFDE)
-        mechs.append(preferences.kLASierraFixes)
-        mechs.append(preferences.kLAKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
-    }
-    
-} else if Okta {
+if Okta {
     
     if loginIndex != nil {
         mechs[loginIndex!] = preferences.kLOCheckOkta

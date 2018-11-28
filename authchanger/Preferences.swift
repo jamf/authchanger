@@ -13,31 +13,40 @@ class Preferences {
     // New Hotness
     
     let Azure = [
-        "impactedEntries": ["system.login.console"]
-        
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["NoMADLoginAzure:CheckAzure", "NoMADLoginAzure:PowerControl,privileged", "NoMADLoginAzure:CreateUser,privileged", "NoMADLoginAD:DeMobilize,privileged" ],
+        "endMechs": ["NoMADLoginAzure:EnableFDE,privileged", "NoMADLoginAzure:SierraFixes,privileged", "NoMADLoginAzure:KeychainAdd,privileged"]
     ]
     
-    let AD: Dictionary<String, Any> = [
-        "impactedEntries": ["system.login.console"]
+    let AD = [
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["NoMADLoginAD:CheckAD", "NoMADLoginAD:PowerControl,privileged", "NoMADLoginAD:EULA", "NoMADLoginAD:CreateUser,privileged", "NoMADLoginAzure:DeMobilize,privileged"],
+        "endMechs": ["NoMADLoginAD:EnableFDE,privileged", "NoMADLoginAD:SierraFixes,privileged", "NoMADLoginAD:KeychainAdd,privileged"]
     ]
     
     let Okta = [
-        "impactedEntries": ["system.login.console"]
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["NoMADLoginOkta:CheckOkta", "NoMADLoginOkta:PowerControl,privileged", "NoMADLoginOkta:CreateUser,privileged", "NoMADLoginOkta:DeMobilize,privileged"],
+        "endMechs": ["NoMADLoginOkta:EnableFDE,privileged", "NoMADLoginOkta:SierraFixes,privileged", "NoMADLoginOkta:KeychainAdd,privileged"]
     ]
     
     let Setup = [
-        "impactedEntries": ["system.login.console"]
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["NoMADLoginSetup:Setup", "NoMADLoginSetup:RunScript,privileged"]
     ]
     
     let Ping = [
-        "impactedEntries": ["system.login.console"]
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["NoMADLoginPing:CheckPing", "NoMADLoginPing:PowerControl,privileged", "NoMADLoginPing:CreateUser,privileged", "NoMADLoginPing:DeMobilize,privileged"],
+        "endMechs": ["NoMADLoginPing:EnableFDE,privileged", "NoMADLoginPing:SierraFixes,privileged", "NoMADLoginPing:KeychainAdd,privileged"]
     ]
     
     let Demobalize = [
-        "impactedEntries": ["system.login.console"]
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["NoMADLoginAD:DeMobilize,privileged"]
     ]
     
-    let SysPrefs: Dictionary<String, Any> = [
+    let SysPrefs: [String : Any] = [
         "impactedEntries": ["system.services.systemconfiguration.network", "system.preferences.network"],
         "rule": [
             "version" : 1 as Int,
@@ -49,7 +58,7 @@ class Preferences {
         ]
     ]
     
-    let SysPrefsReset: Dictionary<String, Any> = [
+    let SysPrefsReset: [String : Any] = [
         "impactedEntries": ["system.services.systemconfiguration.network", "system.preferences.network"],
         "rule": [
             "group": "admin",
@@ -81,55 +90,11 @@ class Preferences {
     
     let defaultMechs = ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
     
-    // AD mechanisms
+    // Notify mechanisms
     
-    let kLACheckAD = "NoMADLoginAD:CheckAD"
-    let kLAEULA = "NoMADLoginAD:EULA"
-    let kLAPowerControl = "NoMADLoginAD:PowerControl,privileged"
-    let kLACreateUser = "NoMADLoginAD:CreateUser,privileged"
-    let kLADeMobilize = "NoMADLoginAD:DeMobilize,privileged"
-    let kLAEnableFDE = "NoMADLoginAD:EnableFDE,privileged"
-    let kLAKeychainAdd = "NoMADLoginAD:KeychainAdd,privileged"
-    let kLASierraFixes = "NoMADLoginAD:SierraFixes,privileged"
-    //let kLANotify = "NoMADLoginAD:Notify"
-    
-    // Okta mechanisms
-    
-    let kLOCheckOkta = "NoMADLoginOkta:CheckOkta"
-    let kLOPowerControl = "NoMADLoginOkta:PowerControl,privileged"
-    let kLOCreateUser = "NoMADLoginOkta:CreateUser,privileged"
-    let kLODeMobilize = "NoMADLoginOkta:DeMobilize,privileged"
-    let kLOEnableFDE = "NoMADLoginOkta:EnableFDE,privileged"
-    let kLOSierraFixes = "NoMADLoginOkta:SierraFixes,privileged"
-    let kLOKeychainAdd = "NoMADLoginOkta:KeychainAdd,privileged"
-    let kLONotify = "NoMADLoginOkta:Notify"
-    
-    // Azure mechanisms
-    
-    let kLAzCheckAzure = "NoMADLoginAzure:CheckAzure"
-    let kLAzPowerControl = "NoMADLoginAzure:PowerControl,privileged"
-    let kLAzCreateUser = "NoMADLoginAzure:CreateUser,privileged"
-    let kLAzDeMobilize = "NoMADLoginAzure:DeMobilize,privileged"
-    let kLAzEnableFDE = "NoMADLoginAzure:EnableFDE,privileged"
-    let kLAzSierraFixes = "NoMADLoginAzure:SierraFixes,privileged"
-    let kLAzKeychainAdd = "NoMADLoginAzure:KeychainAdd,privileged"
+    let kLANotify = "NoMADLoginAD:Notify"
     let kLAzNotify = "NoMADLoginAzure:Notify"
-    
-    // Ping mechanisms
-    
-    let kLPCheckPing = "NoMADLoginPing:CheckPing"
-    let kLPPowerControl = "NoMADLoginPing:PowerControl,privileged"
-    let kLPCreateUser = "NoMADLoginPing:CreateUser,privileged"
-    let kLPDeMobilize = "NoMADLoginPing:DeMobilize,privileged"
-    let kLPEnableFDE = "NoMADLoginPing:EnableFDE,privileged"
-    let kLPSierraFixes = "NoMADLoginPing:SierraFixes,privileged"
-    let kLPKeychainAdd = "NoMADLoginPing:KeychainAdd,privileged"
-    let kLPNotify = "NoMADLoginPing:Notify"
-    
-    // Setup mechanisms
-    
-    let kLSSetup = "NoMADLoginSetup:Setup"
-    let kLSRunScript = "NoMADLoginSetup:RunScript,privileged"
+    let kLONotify = "NoMADLoginOkta:Notify"
     let kLSNotify = "NoMADLoginSetup:Notify"
     
     // System Preferences

@@ -16,12 +16,12 @@ class authorizationdb {
         return authRef!
     }
 
-    func getBatch(getArray: [String]) -> Dictionary<String,CFDictionary>{
+    func getBatch(getArray: [String]) -> [String: [String: AnyObject]]{
         var returnArray: Dictionary<String,CFDictionary> = [:]
         for getEntry in getArray {
             err = AuthorizationRightGet(getEntry, &returnArray[getEntry])
         }
-        return returnArray
+        return returnArray as! [String: [String: AnyObject]]
     }
 
     func setBatch(setArray: Dictionary<String,Dictionary<String,AnyObject>>){
