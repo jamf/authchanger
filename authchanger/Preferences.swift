@@ -9,6 +9,66 @@
 import Foundation
 
 class Preferences {
+    
+    // New Hotness
+    
+    let Azure = [
+        "impactedEntries": ["system.login.console"]
+        
+    ]
+    
+    let AD: Dictionary<String, Any> = [
+        "impactedEntries": ["system.login.console"]
+    ]
+    
+    let Okta = [
+        "impactedEntries": ["system.login.console"]
+    ]
+    
+    let Setup = [
+        "impactedEntries": ["system.login.console"]
+    ]
+    
+    let Ping = [
+        "impactedEntries": ["system.login.console"]
+    ]
+    
+    let Demobalize = [
+        "impactedEntries": ["system.login.console"]
+    ]
+    
+    let SysPrefs: Dictionary<String, Any> = [
+        "impactedEntries": ["system.services.systemconfiguration.network", "system.preferences.network"],
+        "rule": [
+            "version" : 1 as Int,
+            "comment" : "Rule to allow for Azure authentication" as String,
+            "mechanisms" : [ "NoMADLoginAzure:AuthUI" ] as [String],
+            "class" : "evaluate-mechanisms" as String,
+            "shared" : true as Bool,
+            "tries" : 10000 as Int
+        ]
+    ]
+    
+    let SysPrefsReset: Dictionary<String, Any> = [
+        "impactedEntries": ["system.services.systemconfiguration.network", "system.preferences.network"],
+        "rule": [
+            "group": "admin",
+            "timeout": 2147483647,
+            "version": 0,
+            "tries": 10000,
+            "comment": "Checked by the Admin framework when making changes to the Network preference pane.",
+            "modified": 555548986.9298199,
+            "class": "user",
+            "session-owner": 0,
+            "authenticate-user": 1,
+            "created": 555548986.9298199,
+            "shared": 1,
+            "allow-root": 1
+        ]
+    ]
+    
+    // Old and Busted
+    
     let kSystemRightConsole = "system.login.console"
     let kloginwindow_ui = "loginwindow:login"
     let kloginwindow_success = "loginwindow:success"
@@ -77,76 +137,6 @@ class Preferences {
     let kSPNetwork = "system.preferences.network"
     let kSPNetworkConfiguration = "system.services.systemconfiguration.network"
     let kSPsudoSAML = "com.jamf.connect.sudosaml"
-    
-    let azureRule : [ String : Any ] = [
-        "version" : 1 as Int,
-        "comment" : "Rule to allow for Azure authentication" as String,
-        "mechanisms" : [ "NoMADLoginAzure:AuthUI" ] as [String],
-        "class" : "evaluate-mechanisms" as String,
-        "shared" : true as Bool,
-        "tries" : 10000 as Int
-    ]
-    
-    let defaultRule : [ String : Any ] = [
-        "group": "admin",
-        "timeout": 2147483647,
-        "version": 0,
-        "tries": 10000,
-        "comment": "Checked by the Admin framework when making changes to the Network preference pane.",
-        "modified": 555548986.9298199,
-        "class": "user",
-        "session-owner": 0,
-        "authenticate-user": 1,
-        "created": 555548986.9298199,
-        "shared": 1,
-        "allow-root": 1
-    ]
-    
-    /*let help = """
-    authchanger is a utility to help you manage the authorization database used by macOS to determine how the login process progresses.
-    
-    version: \(Self.version)
-    
-    Note: This utilty must be run as root.
-    
-    Some basic options:
-    
-    -version        : prints the version number
-    -help | -h      : prints this help statement
-    -reset          : resets the auth database to the factory settings
-    -Okta           : sets up NoMAD Login+Okta
-    -AD             : sets up NoMAD LoginAD
-    -Azure          : sets up NoMAD Login Azure
-    -demobilize     : sets up NoMAD LoginAD to only demobilze accounts
-    -print          : prints the current list of authorization mechanisms
-    -debug          : does a dry run of the changes and prints out what would have happened
-    
-    Experimental options for working with Admin authorization:
-    
-    -SysPrefs       : enables Azure auhentication for the Network Preference Pane
-    -SysPrefsReset  : removes Azure authentication for the Network Preference Pane
-    
-    In addition to setting basic setups, you can also specify custom rules to be put in.
-    
-    -preLogin       : mechs to be used before the actual UI is shown
-    -preAuth        : mechs to be used between the login UI and actual authentication
-    -postAuth       : mechs to be used after system authentication
-    
-    Useage
-    
-    authchanger -reset -AD
-    
-    Will ensure that the authdb is reset to factory defaults and then enable NoMAD LoginAD.
-    
-    authchanger -print
-    
-    Will display the current authdb settings.
-    
-    authchanger -debug -reset -Okta -preLogin "NoMADLoginOkta:RunScript,privileged, NoMADLoginOkta:Notify"
-    
-    Will reset the authdb then add NoMAD Login+Okta settings and and the RunScript and Notify mechanisms before the NoMAD Login+Okta UI is shown. The -debug flag will show you the resulting output without actually making the change.
-    
-    """*/
     
     func help(){
         let help = """

@@ -10,9 +10,91 @@ import Foundation
 import Security.AuthorizationDB
 
 let preferences = Preferences()
+let authdb = authorizationdb()
+
+var err = OSStatus.init(0)
+
+// New Hotness
+
+
+// print help and quit if asked
+if CommandLine.arguments.contains("-h") || CommandLine.arguments.contains("-help") {
+    Preferences.help(Preferences())()
+    exit(0)
+}
+
+// print version and quit if asked
+
+if CommandLine.arguments.contains("-version") {
+    print(preferences.version)
+    exit(0)
+}
+
+extension Array where Element: Equatable {
+    @discardableResult
+    mutating func appendIfNotContains(_ element: Element) -> (appended: Bool, memberAfterAppend: Element) {
+        if !contains(element) {
+            append(element)
+            return (true, element)
+        }
+        return (false, element)
+    }
+}
+
+func getImpactedEntries(arguments: [String]) -> [String]{
+    var impactedEntries: [String] = []
+    for arg in arguments[1...] {
+        
+        switch(arg.uppercased()){
+            
+        // All of these parameters edit the same entry
+        case "-AZURE",
+             "-AD",
+             "-OKTA",
+             "-SETUP",
+             "-PING",
+             "-DEMOBALIZE":
+            for domain in preferences.AD["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        case "-SYSPREFS",
+             "-SYSPREFSRESET" :
+            for domain in preferences.SysPrefs["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        case "-RESET" :
+            for domain in preferences.SysPrefs["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+            for domain in preferences.AD["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        default:
+            print() //need something better here
+        }
+    }
+    return impactedEntries
+}
+
+func defaultMechanismAddition(editingConfiguration: Dictionary<String,CFDictionary>, mechDict: Dictionary<String, Any>) -> Dictionary<String,CFDictionary>{
+    
+    //TODO: Everything this function does
+    
+    return [:]
+}
+
+// Getting the current configuration of the machine for the preferences necessary
+let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(arguments: CommandLine.arguments))
+
+// Making a copy of the configuraiton to edit
+var editingConfiguration = currentConfiguration
+
+
+
+// Old and busted
+/*
 
 var rights : CFDictionary? = nil
-var err = OSStatus.init(0)
 var authRef : AuthorizationRef? = nil
 var mechs = [String]()
 var mechChange = false
@@ -37,31 +119,9 @@ var stashPath : String?
 var loginIndex : Int?
 var authIndex : Int?
 
-///MARK: helper functions
-
-func getLogin() {
-    // find the loginwindow UI index
-    
-    loginIndex = mechs.index(of: preferences.kloginwindow_ui)
-    
-    if loginIndex == nil {
-        // try for AD
-        loginIndex = mechs.index(of: preferences.kLACheckAD)
-    }
-    
-    if loginIndex == nil {
-        loginIndex = mechs.index(of: preferences.kLOCheckOkta)
-    }
-}
-
-err = AuthorizationRightGet(preferences.kSPNetwork, &rights)
-
 // check for a help arg
 
-if CommandLine.arguments.contains("-h") || CommandLine.arguments.contains("-help") {
-    Preferences.help(Preferences())()
-    exit(0)
-}
+
 
 // get all of the CLI args, and parse them
 
@@ -92,13 +152,6 @@ if args.contains("-AD") {
     Ping = true
 } else if args.contains("-demobilize") {
     deMobilize = true
-}
-
-// print version and quit if asked
-
-if args.contains("-version") {
-    print(preferences.version)
-    exit(0)
 }
 
 // get an authorization context to save this back
@@ -273,9 +326,9 @@ rightsDict[preferences.kmechanisms] = mechs as AnyObject
 
 if CommandLine.arguments.contains("-SysPrefs") {
     if NSUserName() == "root" {
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.azureRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.SysPrefs["rule"] as CFTypeRef, nil, nil, nil)
     
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.azureRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.SysPrefs["rule"] as CFTypeRef, nil, nil, nil)
     } else {
         print("Not root, unable to make changes")
     }
@@ -284,9 +337,9 @@ if CommandLine.arguments.contains("-SysPrefs") {
 if CommandLine.arguments.contains("-SysPrefsReset") {
     if NSUserName() == "root" {
 
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.defaultRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.SysPrefsReset["rule"] as CFTypeRef, nil, nil, nil)
     
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.defaultRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.SysPrefsReset["rule"] as CFTypeRef, nil, nil, nil)
     } else {
         print("Not root, unable to make changes")
 
@@ -296,9 +349,10 @@ if CommandLine.arguments.contains("-SysPrefsReset") {
 if CommandLine.arguments.contains("-AddDefaultJCRight") {
     if NSUserName() == "root" {
         
-        err = AuthorizationRightSet(authRef!, preferences.kSPsudoSAML, preferences.azureRule as CFTypeRef, nil, nil, nil)
+        err = AuthorizationRightSet(authRef!, preferences.kSPsudoSAML, preferences.SysPrefs["rule"] as CFTypeRef, nil, nil, nil)
     } else {
         print("Not root, unable to make changes")
         
     }
 }
+*/
