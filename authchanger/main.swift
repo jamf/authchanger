@@ -6,6 +6,8 @@
 //  Copyright © 2017 Joel Rennich. All rights reserved.
 //
 
+//TODO fix AD settings
+
 import Foundation
 import Security.AuthorizationDB
 
@@ -17,7 +19,7 @@ var err = OSStatus.init(0)
 // New Hotness
 
 // full arguments list as single string
-let argString = CommandLine.arguments.joined().uppercased()
+let argString = CommandLine.arguments.joined(separator: " ").uppercased()
 
 // print help and quit if asked
 if argString.contains("-H") || argString.contains("-HELP") {
@@ -54,7 +56,7 @@ func getImpactedEntries(arguments: [String]) -> [String]{
              "-OKTA",
              "-SETUP",
              "-PING",
-             "-DEMOBALIZE":
+             "-DEMOBILIZE":
             for domain in preferences.AD["impactedEntries"] as! [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
@@ -63,7 +65,12 @@ func getImpactedEntries(arguments: [String]) -> [String]{
             for domain in preferences.SysPrefs["impactedEntries"] as! [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
-        case "-RESET" :
+        case "-ADDDEFAULTJCRIGHT" :
+            for domain in preferences.AddDefaultJCRight["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        case "-RESET",
+             "-PRINT":
             for domain in preferences.SysPrefs["impactedEntries"] as! [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
@@ -71,7 +78,7 @@ func getImpactedEntries(arguments: [String]) -> [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
         default:
-            print() //need something better here
+            print() //need something better here - Johan
         }
     }
     return impactedEntries
@@ -80,20 +87,27 @@ func getImpactedEntries(arguments: [String]) -> [String]{
 // default mechanism addition function to avoid the code replication in the initial version
 
 func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]], mechDict: [String: [String]]) -> [String: [String: AnyObject]]{
-    
+
     var tmpEditingConfiguration = editingConfiguration
     
     for impactedMech in (mechDict["impactedEntries"] as! [String]){
         
         var tmpEditingConfigurationMech = editingConfiguration[impactedMech]
+        dump(tmpEditingConfigurationMech)
         var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
         
-        // flipping and adding the front mechanisms
-        editingMech.reverse()
-        for addingMech in mechDict["frontMechs"] as! [String]{
-            editingMech.insert(addingMech, at: editingMech.count - 1)
+        // adding the increment for demobilize only setting
+        var increment = 1
+        if((mechDict["frontMechs"] as! [String])[0].contains("DeMobilize")){ increment = 2 }
+        
+        // removing the loginwindow mechanism
+        editingMech.remove(at: 1)
+        
+        // adding the front mechanisms
+        var frontMechs = (mechDict["frontMechs"] as! [String]).reversed()
+        for addingMech in frontMechs {
+            editingMech.insert(addingMech, at: increment)
         }
-        editingMech.reverse()
         
         // appending the rear mechanisms
         for addingMech in mechDict["endMechs"] as! [String]{
@@ -107,18 +121,39 @@ func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]
     return tmpEditingConfiguration
 }
 
+func authorizationDBPrettyPrint(authDBConfiguration: [String: [String: AnyObject]]){
+    for authDBEntryKey in authDBConfiguration.keys {
+        print("Entry: " + authDBEntryKey)
+        let entryProperty = authDBConfiguration[authDBEntryKey]
+        
+        if((authDBConfiguration[authDBEntryKey]?.keys)!.contains("mechanisms")){
+            let entryMechs = entryProperty?["mechanisms"]
+            print("   Mechanisms:")
+            for mechName in entryMechs as! [String]{
+                print("      \(mechName)")
+            }
+        } else {
+            for EntryPropertyKey in (authDBConfiguration[authDBEntryKey]?.keys)! {
+                print("   " + EntryPropertyKey + " : \(entryProperty![EntryPropertyKey]!)")
+            }
+        }
+        print()
+    }
+}
+
 // Getting the current configuration of the machine for the preferences necessary
 let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(arguments: CommandLine.arguments))
 
 // print version and quit if asked
 if argString.contains("-PRINT") {
-    dump(currentConfiguration)
+    authorizationDBPrettyPrint(authDBConfiguration: currentConfiguration)
+    exit(0)
 }
 
 // Making a copy of the configuraiton to edit
 var editingConfiguration = currentConfiguration as [String: [String: AnyObject]]
 
-if argString.contains("-AD") {
+if argString.contains("-AD ") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.AD)
 } else if argString.contains("-AZURE") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Azure)
@@ -128,13 +163,39 @@ if argString.contains("-AD") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Setup)
 } else if argString.contains("-PING") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Ping)
-} else if argString.contains("-DEMOBALIZE") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobalize)
+} else if argString.contains("-DEMOBILIZE") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobilze)
+}
+
+if argString.contains("-RESET") {
+    var tmpEditingConfigurationMech = editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]]
+    tmpEditingConfigurationMech?["mechanisms"] = (preferences.Reset)["defaultMechs"] as AnyObject
+    editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]] = tmpEditingConfigurationMech
+}
+
+// There is some more code minimization that can be done below
+
+if argString.contains("-SYSPREFS") {
+    for impactedEntry in (preferences.SysPrefs)["impactedEntries"] as! [String]{
+        editingConfiguration[impactedEntry] = (preferences.SysPrefs)["rule"] as! [String : AnyObject]
+    }
+}
+
+if argString.contains("-SYSPREFSRESET") {
+    for impactedEntry in (preferences.SysPrefsReset)["impactedEntries"] as! [String]{
+        editingConfiguration[impactedEntry] = (preferences.SysPrefsReset)["rule"] as! [String : AnyObject]
+    }
+}
+
+if argString.contains("-ADDDEFAULTJCRIGHT") {
+    for impactedEntry in (preferences.AddDefaultJCRight)["impactedEntries"] as! [String]{
+        editingConfiguration[impactedEntry] = (preferences.AddDefaultJCRight)["rule"] as! [String : AnyObject]
+    }
 }
 
 
 if argString.contains("-DEBUG") {
-    dump(editingConfiguration)
+    authorizationDBPrettyPrint(authDBConfiguration: editingConfiguration)
     exit(0)
 }
 
@@ -144,34 +205,9 @@ if argString.contains("-DEBUG") {
 // Old and busted
 /*
 
-var rights : CFDictionary? = nil
-var authRef : AuthorizationRef? = nil
-var mechs = [String]()
-var mechChange = false
-
-// Arguments
-
-var printMechs = false
-var writePath = ""
 var preLogin : [String]?
 var preAuth : [String]?
 var postAuth : [String]?
-var AD = false
-var Okta = false
-var Azure = false
-var Ping = false
-var deMobilize = false
-var setup = false
-var stashPath : String?
-
-// Index keys
-
-var loginIndex : Int?
-var authIndex : Int?
-
-// check for a help arg
-
-
 
 // get all of the CLI args, and parse them
 
@@ -215,73 +251,7 @@ if CommandLine.arguments.contains("-reset") {
     mechs.removeAll()
     mechs = preferences.defaultMechs
 }
-
-getLogin()
-
-// if asked print the mechs
-
-if CommandLine.arguments.contains("-print") {
-    for mech in mechs {
-        print("\t\(mech)")
-    }
-}
-
-if Okta {
-    
-    if loginIndex != nil {
-        mechs[loginIndex!] = preferences.kLOCheckOkta
-        mechs.insert(preferences.kLOPowerControl, at: loginIndex! + 1)
-        mechs.insert(preferences.kLOCreateUser, at: loginIndex! + 2)
-        mechs.insert(preferences.kLODeMobilize, at: loginIndex! + 3)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(preferences.kLOEnableFDE)
-        mechs.append(preferences.kLOSierraFixes)
-        mechs.append(preferences.kLOKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if Azure {
-    if loginIndex != nil {
-        mechs[loginIndex!] = preferences.kLAzCheckAzure
-        mechs.insert(preferences.kLAzPowerControl, at: loginIndex! + 1)
-        mechs.insert(preferences.kLAzCreateUser, at: loginIndex! + 2)
-        mechs.insert(preferences.kLAzDeMobilize, at: loginIndex! + 3)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(preferences.kLAzEnableFDE)
-        mechs.append(preferences.kLAzSierraFixes)
-        mechs.append(preferences.kLAzKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if setup {
-    if loginIndex != nil {
-        mechs[loginIndex!] = preferences.kLSSetup
-        mechs.insert(preferences.kLSRunScript, at: loginIndex! + 1)
-        mechs.insert(preferences.kLSNotify, at: loginIndex! + 2)
-                
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if Ping {
-    if loginIndex != nil {
-        mechs[loginIndex!] = preferences.kLPCheckPing
-        mechs.insert(preferences.kLPPowerControl, at: loginIndex! + 1)
-        mechs.insert(preferences.kLPCreateUser, at: loginIndex! + 2)
-        mechs.insert(preferences.kLPDeMobilize, at: loginIndex! + 3)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(preferences.kLPEnableFDE)
-        mechs.append(preferences.kLPSierraFixes)
-        mechs.append(preferences.kLPKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if deMobilize {
+ if deMobilize {
     if loginIndex != nil {
         mechs.insert(preferences.kLADeMobilize, at: loginIndex! + 1)
     } else {
@@ -323,12 +293,8 @@ if preLogin != nil || preAuth != nil || postAuth != nil {
     }
 }
 
-if CommandLine.arguments.contains("-debug") {
-    print("*** Mech List ***")
-    for mech in mechs {
-        print("\t\(mech)")
-    }
-} else {
+ if {}
+else {
 
 rightsDict[preferences.kmechanisms] = mechs as AnyObject
 
@@ -341,27 +307,6 @@ rightsDict[preferences.kmechanisms] = mechs as AnyObject
     }
 }
 
-if CommandLine.arguments.contains("-SysPrefs") {
-    if NSUserName() == "root" {
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.SysPrefs["rule"] as CFTypeRef, nil, nil, nil)
-    
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.SysPrefs["rule"] as CFTypeRef, nil, nil, nil)
-    } else {
-        print("Not root, unable to make changes")
-    }
-}
-
-if CommandLine.arguments.contains("-SysPrefsReset") {
-    if NSUserName() == "root" {
-
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetworkConfiguration, preferences.SysPrefsReset["rule"] as CFTypeRef, nil, nil, nil)
-    
-        err = AuthorizationRightSet(authRef!, preferences.kSPNetwork, preferences.SysPrefsReset["rule"] as CFTypeRef, nil, nil, nil)
-    } else {
-        print("Not root, unable to make changes")
-
-    }
-}
 
 if CommandLine.arguments.contains("-AddDefaultJCRight") {
     if NSUserName() == "root" {

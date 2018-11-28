@@ -41,9 +41,10 @@ class Preferences {
         "endMechs": ["NoMADLoginPing:EnableFDE,privileged", "NoMADLoginPing:SierraFixes,privileged", "NoMADLoginPing:KeychainAdd,privileged"]
     ]
     
-    let Demobalize = [
+    let Demobilze = [
         "impactedEntries": ["system.login.console"],
-        "frontMechs": ["NoMADLoginAD:DeMobilize,privileged"]
+        "frontMechs": ["NoMADLoginAD:DeMobilize,privileged"],
+        "endMechs": []
     ]
     
     let SysPrefs: [String : Any] = [
@@ -76,32 +77,22 @@ class Preferences {
         ]
     ]
     
-    // Old and Busted
+    let Reset: [String: Any] = [
+        "impactedEntries": ["system.login.console"],
+        "defaultMechs" : ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
+    ]
     
-    let kSystemRightConsole = "system.login.console"
-    let kloginwindow_ui = "loginwindow:login"
-    let kloginwindow_success = "loginwindow:success"
-    let klogindindow_home = "HomeDirMechanism:status"
-    let kmechanisms = "mechanisms"
-    
-    let version = "1.2.1"
-    
-    // defaults - macOS 10.13
-    
-    let defaultMechs = ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
-    
-    // Notify mechanisms
-    
-    let kLANotify = "NoMADLoginAD:Notify"
-    let kLAzNotify = "NoMADLoginAzure:Notify"
-    let kLONotify = "NoMADLoginOkta:Notify"
-    let kLSNotify = "NoMADLoginSetup:Notify"
-    
-    // System Preferences
-    
-    let kSPNetwork = "system.preferences.network"
-    let kSPNetworkConfiguration = "system.services.systemconfiguration.network"
-    let kSPsudoSAML = "com.jamf.connect.sudosaml"
+    let AddDefaultJCRight: [String: Any] = [
+        "impactedEntries": ["com.jamf.connect.sudosaml"],
+        "rule": [
+            "version" : 1 as Int,
+            "comment" : "Rule to allow for Azure authentication" as String,
+            "mechanisms" : [ "NoMADLoginAzure:AuthUI" ] as [String],
+            "class" : "evaluate-mechanisms" as String,
+            "shared" : true as Bool,
+            "tries" : 10000 as Int
+        ]
+    ]
     
     func help(){
         let help = """
@@ -125,7 +116,7 @@ class Preferences {
         
         Experimental options for working with Admin authorization:
         
-        -SysPrefs       : enables Azure auhentication for the Network Preference Pane
+        -SysPrefs       : enables Azure authentication for the Network Preference Pane
         -SysPrefsReset  : removes Azure authentication for the Network Preference Pane
         
         In addition to setting basic setups, you can also specify custom rules to be put in.
@@ -151,4 +142,22 @@ class Preferences {
         """
         print(help)
     }
+    
+    // Old and Busted
+    
+    let kSystemRightConsole = "system.login.console"
+    let kloginwindow_ui = "loginwindow:login"
+    let kloginwindow_success = "loginwindow:success"
+    let klogindindow_home = "HomeDirMechanism:status"
+    let kmechanisms = "mechanisms"
+    
+    let version = "1.2.1"
+    
+    // Notify mechanisms
+    
+    let kLANotify = "NoMADLoginAD:Notify"
+    let kLAzNotify = "NoMADLoginAzure:Notify"
+    let kLONotify = "NoMADLoginOkta:Notify"
+    let kLSNotify = "NoMADLoginSetup:Notify"
+    
 }
