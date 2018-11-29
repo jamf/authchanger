@@ -221,7 +221,7 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
             i += 1
             if i >= argArrayCap.count{break}
             while !(argArrayCap[i]).hasPrefix("-"){
-                preLoginMechs.append(argArrayCap[i])
+                preLoginMechs.append((CommandLine.arguments)[i])
                 i += 1
                 if i >= argArrayCap.count{break}
             }
@@ -231,7 +231,7 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
             i += 1
             if i >= argArrayCap.count{break}
             while !(argArrayCap[i]).hasPrefix("-"){
-                preAuthMechs.append(argArrayCap[i])
+                preAuthMechs.append((CommandLine.arguments)[i])
                 i += 1
                 if i >= argArrayCap.count{break}
             }
@@ -241,7 +241,7 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
             i += 1
             if i >= argArrayCap.count{break}
             while !(argArrayCap[i]).hasPrefix("-"){
-                postAuthMechs.append(argArrayCap[i])
+                postAuthMechs.append((CommandLine.arguments)[i])
                 i += 1
                 if i >= argArrayCap.count{break}
             }
