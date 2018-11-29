@@ -136,14 +136,15 @@ func authorizationDBPrettyPrint(authDBConfiguration: [String: [String: AnyObject
         print("Entry: " + authDBEntryKey)
         let entryProperty = authDBConfiguration[authDBEntryKey]
         
-        if((authDBConfiguration[authDBEntryKey]?.keys)!.contains("mechanisms")){
-            let entryMechs = entryProperty?["mechanisms"]
-            print("   Mechanisms:")
-            for mechName in entryMechs as! [String]{
-                print("      \(mechName)")
-            }
-        } else {
-            for EntryPropertyKey in (authDBConfiguration[authDBEntryKey]?.keys)! {
+        for EntryPropertyKey in (authDBConfiguration[authDBEntryKey]?.keys)! {
+            
+            if EntryPropertyKey == "mechanisms" {
+                let entryMechs = entryProperty?[EntryPropertyKey]
+                print("   mechanisms:")
+                for mechName in entryMechs as! [String]{
+                    print("      \(mechName)")
+                }
+            } else {
                 print("   " + EntryPropertyKey + " : \(entryProperty![EntryPropertyKey]!)")
             }
         }
