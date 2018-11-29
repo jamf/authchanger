@@ -56,7 +56,10 @@ func getImpactedEntries(arguments: [String]) -> [String]{
              "-OKTA",
              "-SETUP",
              "-PING",
-             "-DEMOBILIZE":
+             "-DEMOBILIZE",
+             "-PRELOGIN",
+             "-PREAUTH",
+             "-POSTAUTH":
             for domain in preferences.AD["impactedEntries"] as! [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
@@ -78,7 +81,7 @@ func getImpactedEntries(arguments: [String]) -> [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
         default:
-            print() //need something better here - Johan
+            break
         }
     }
     return impactedEntries
@@ -86,27 +89,36 @@ func getImpactedEntries(arguments: [String]) -> [String]{
 
 // default mechanism addition function to avoid the code replication in the initial version
 
-func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]], mechDict: [String: [String]]) -> [String: [String: AnyObject]]{
+func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]], mechDict: [String: [String]], notify: Bool = false) -> [String: [String: AnyObject]]{
 
     var tmpEditingConfiguration = editingConfiguration
     
     for impactedMech in (mechDict["impactedEntries"] as! [String]){
         
         var tmpEditingConfigurationMech = editingConfiguration[impactedMech]
-        dump(tmpEditingConfigurationMech)
         var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
         
         // adding the increment for demobilize only setting
         var increment = 1
-        if((mechDict["frontMechs"] as! [String])[0].contains("DeMobilize")){ increment = 2 }
-        
-        // removing the loginwindow mechanism
-        editingMech.remove(at: 1)
+        if((mechDict["frontMechs"] as! [String])[0].contains("DeMobilize")){
+            increment = 2
+        } else {
+            // removing the loginwindow mechanism if not only demobilize
+            editingMech.remove(at: 1)
+        }
         
         // adding the front mechanisms
         var frontMechs = (mechDict["frontMechs"] as! [String]).reversed()
         for addingMech in frontMechs {
             editingMech.insert(addingMech, at: increment)
+        }
+        
+        // adding the notify mechanism if specified
+        if notify {
+            let additionIndex = editingMech.firstIndex(of: "builtin:login-begin") as! Int
+            for addingMech in (mechDict["notifyMech"] as! [String]).reversed() {
+                editingMech.insert(addingMech, at: additionIndex)
+            }
         }
         
         // appending the rear mechanisms
@@ -153,24 +165,29 @@ if argString.contains("-PRINT") {
 // Making a copy of the configuraiton to edit
 var editingConfiguration = currentConfiguration as [String: [String: AnyObject]]
 
-if argString.contains("-AD ") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.AD)
-} else if argString.contains("-AZURE") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Azure)
-} else if argString.contains("-OKTA") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Okta)
-} else if argString.contains("-SETUP") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Setup)
-} else if argString.contains("-PING") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Ping)
-} else if argString.contains("-DEMOBILIZE") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobilze)
-}
-
 if argString.contains("-RESET") {
     var tmpEditingConfigurationMech = editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]]
     tmpEditingConfigurationMech?["mechanisms"] = (preferences.Reset)["defaultMechs"] as AnyObject
     editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]] = tmpEditingConfigurationMech
+}
+
+var notifyMechAdd: Bool = false
+if argString.contains("-NOTIFY"){
+    notifyMechAdd = true
+}
+
+if argString.contains("-AD ") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.AD, notify: notifyMechAdd)
+} else if argString.contains("-AZURE") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Azure, notify: notifyMechAdd)
+} else if argString.contains("-OKTA") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Okta, notify: notifyMechAdd)
+} else if argString.contains("-SETUP") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Setup, notify: notifyMechAdd)
+} else if argString.contains("-PING") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Ping)
+} else if argString.contains("-DEMOBILIZE") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobilze)
 }
 
 // There is some more code minimization that can be done below
@@ -193,11 +210,90 @@ if argString.contains("-ADDDEFAULTJCRIGHT") {
     }
 }
 
+// getting all mechanisms from the parameters given in
+// this code is dirty..... -Johan
+var preLoginMechs:[String] = [], preAuthMechs:[String] = [], postAuthMechs:[String] = []
+if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argString.contains("-POSTAUTH") {
+    let argArrayCap = (CommandLine.arguments).map{$0.uppercased()}
+    var i = 1
+    while i < argArrayCap.count {
+        if argArrayCap[i] == "-PRELOGIN" {
+            i += 1
+            while !(argArrayCap[i]).hasPrefix("-"){
+                preLoginMechs.append(argArrayCap[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
+        if argArrayCap[i] == "-PREAUTH" {
+            i += 1
+            while !(argArrayCap[i]).hasPrefix("-"){
+                preAuthMechs.append(argArrayCap[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
+        if argArrayCap[i] == "-POSTAUTH" {
+            i += 1
+            while !(argArrayCap[i]).hasPrefix("-"){
+                postAuthMechs.append(argArrayCap[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
+        i += 1
+    }
+}
+
+// reversing everything
+preLoginMechs.reverse()
+preAuthMechs.reverse()
+postAuthMechs.reverse()
+
+if argString.contains("-PRELOGIN") {
+    var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
+    var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+    for mech in preLoginMechs {
+        editingMech.insert(mech, at: 1)
+    }
+    tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+    editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
+}
+
+if argString.contains("-PREAUTH") {
+    var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
+    var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+    let additionIndex = editingMech.firstIndex(of: "builtin:login-begin") as! Int
+    for mech in preAuthMechs {
+        editingMech.insert(mech, at: additionIndex)
+    }
+    tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+    editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
+}
+
+if argString.contains("-POSTAUTH") {
+    var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
+    var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+    for mech in postAuthMechs {
+        editingMech.append(mech)
+    }
+    tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+    editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
+}
+
 
 if argString.contains("-DEBUG") {
     authorizationDBPrettyPrint(authDBConfiguration: editingConfiguration)
     exit(0)
+} else {
+    // writing everything back
+    authdb.setBatch(setArray: editingConfiguration)
 }
+
+
 
 
 

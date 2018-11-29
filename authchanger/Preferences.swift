@@ -12,27 +12,33 @@ class Preferences {
     
     // New Hotness
     
+    let version = "2.0.0"
+    
     let Azure = [
         "impactedEntries": ["system.login.console"],
-        "frontMechs": ["NoMADLoginAzure:CheckAzure", "NoMADLoginAzure:PowerControl,privileged", "NoMADLoginAzure:CreateUser,privileged", "NoMADLoginAD:DeMobilize,privileged" ],
-        "endMechs": ["NoMADLoginAzure:EnableFDE,privileged", "NoMADLoginAzure:SierraFixes,privileged", "NoMADLoginAzure:KeychainAdd,privileged"]
+        "frontMechs": ["NoMADLoginAzure:CheckAzure", "NoMADLoginAzure:PowerControl,privileged", "NoMADLoginAzure:CreateUser,privileged", "NoMADLoginAzure:DeMobilize,privileged" ],
+        "endMechs": ["NoMADLoginAzure:EnableFDE,privileged", "NoMADLoginAzure:SierraFixes,privileged", "NoMADLoginAzure:KeychainAdd,privileged"],
+        "notifyMech": ["NoMADLoginAzure:Notify"]
     ]
     
     let AD = [
         "impactedEntries": ["system.login.console"],
         "frontMechs": ["NoMADLoginAD:CheckAD", "NoMADLoginAD:PowerControl,privileged", "NoMADLoginAD:EULA", "NoMADLoginAD:CreateUser,privileged", "NoMADLoginAzure:DeMobilize,privileged"],
-        "endMechs": ["NoMADLoginAD:EnableFDE,privileged", "NoMADLoginAD:SierraFixes,privileged", "NoMADLoginAD:KeychainAdd,privileged"]
+        "endMechs": ["NoMADLoginAD:EnableFDE,privileged", "NoMADLoginAD:SierraFixes,privileged", "NoMADLoginAD:KeychainAdd,privileged"],
+        "notifyMech": ["NoMADLoginAD:Notify"]
     ]
     
     let Okta = [
         "impactedEntries": ["system.login.console"],
         "frontMechs": ["NoMADLoginOkta:CheckOkta", "NoMADLoginOkta:PowerControl,privileged", "NoMADLoginOkta:CreateUser,privileged", "NoMADLoginOkta:DeMobilize,privileged"],
-        "endMechs": ["NoMADLoginOkta:EnableFDE,privileged", "NoMADLoginOkta:SierraFixes,privileged", "NoMADLoginOkta:KeychainAdd,privileged"]
+        "endMechs": ["NoMADLoginOkta:EnableFDE,privileged", "NoMADLoginOkta:SierraFixes,privileged", "NoMADLoginOkta:KeychainAdd,privileged"],
+        "notifyMech": ["NoMADLoginOkta:Notify"]
     ]
     
     let Setup = [
         "impactedEntries": ["system.login.console"],
-        "frontMechs": ["NoMADLoginSetup:Setup", "NoMADLoginSetup:RunScript,privileged"]
+        "frontMechs": ["NoMADLoginSetup:Setup", "NoMADLoginSetup:RunScript,privileged"],
+        "notifyMech": ["NoMADLoginSetup:Notify"]
     ]
     
     let Ping = [
@@ -100,24 +106,30 @@ class Preferences {
         
         version: \(self.version)
         
-        Note: This utilty must be run as root.
+        Note: This utilty must be run as root, all parameters are case in-sensitive
         
         Some basic options:
         
-        -version        : prints the version number
-        -help | -h      : prints this help statement
-        -reset          : resets the auth database to the factory settings
+        -Version        : prints the version number
+        -Help | -h      : prints this help statement
+        -Reset          : resets the login screen to the factory settings
         -Okta           : sets up NoMAD Login+Okta
         -AD             : sets up NoMAD LoginAD
         -Azure          : sets up NoMAD Login Azure
-        -demobilize     : sets up NoMAD LoginAD to only demobilze accounts
-        -print          : prints the current list of authorization mechanisms
-        -debug          : does a dry run of the changes and prints out what would have happened
+        -Ping           : sets up NoMAD Ping
+        -Demobilize     : sets up NoMAD LoginAD to only demobilze accounts
+        -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, or -Setup argument
+        -Print          : prints the current list of authorization mechanisms
+        -Debug          : does a dry run of the changes and prints out what would have happened
         
         Experimental options for working with Admin authorization:
         
         -SysPrefs       : enables Azure authentication for the Network Preference Pane
         -SysPrefsReset  : removes Azure authentication for the Network Preference Pane
+        
+        Experimental options for working with sudo authorization:
+        
+        -AddDefaultJCRight : adds the mechanism to be used with the sudosaml binary
         
         In addition to setting basic setups, you can also specify custom rules to be put in.
         
@@ -127,37 +139,19 @@ class Preferences {
         
         Useage
         
-        authchanger -reset -AD
+        authchanger -reset
         
-        Will ensure that the authdb is reset to factory defaults and then enable NoMAD LoginAD.
+        Will ensure that the authdb is reset to factory defaults
         
         authchanger -print
         
         Will display the current authdb settings.
         
-        authchanger -debug -reset -Okta -preLogin "NoMADLoginOkta:RunScript,privileged, NoMADLoginOkta:Notify"
+        authchanger -debug -reset -Okta -Notify -preLogin CustomMechanism:Something AnotherCustomMechanism:Notify
         
-        Will reset the authdb then add NoMAD Login+Okta settings and and the RunScript and Notify mechanisms before the NoMAD Login+Okta UI is shown. The -debug flag will show you the resulting output without actually making the change.
+        Will reset the authdb then add NoMAD Login+Okta settings as well as the Okta notify mechanism, followed by adding the two custom mechanisms before the login window open. The -debug flag will show you the resulting output without actually making the change.
         
         """
         print(help)
     }
-    
-    // Old and Busted
-    
-    let kSystemRightConsole = "system.login.console"
-    let kloginwindow_ui = "loginwindow:login"
-    let kloginwindow_success = "loginwindow:success"
-    let klogindindow_home = "HomeDirMechanism:status"
-    let kmechanisms = "mechanisms"
-    
-    let version = "1.2.1"
-    
-    // Notify mechanisms
-    
-    let kLANotify = "NoMADLoginAD:Notify"
-    let kLAzNotify = "NoMADLoginAzure:Notify"
-    let kLONotify = "NoMADLoginOkta:Notify"
-    let kLSNotify = "NoMADLoginSetup:Notify"
-    
 }
