@@ -6,8 +6,6 @@
 //  Copyright © 2017 Joel Rennich. All rights reserved.
 //
 
-//TODO fix AD settings
-
 import Foundation
 import Security.AuthorizationDB
 
@@ -16,7 +14,7 @@ let authdb = authorizationdb()
 
 var err = OSStatus.init(0)
 
-// New Hotness
+// New Hotness - Johan
 
 // full arguments list as single string
 let argString = CommandLine.arguments.joined(separator: " ").uppercased()
@@ -68,8 +66,8 @@ func getImpactedEntries(arguments: [String]) -> [String]{
             for domain in preferences.SysPrefs["impactedEntries"] as! [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
-        case "-ADDDEFAULTJCRIGHT" :
-            for domain in preferences.AddDefaultJCRight["impactedEntries"] as! [String]{
+        case "-DEFAULTJCRIGHT" :
+            for domain in preferences.DefaultJCRight["impactedEntries"] as! [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
         case "-RESET",
@@ -176,7 +174,7 @@ if argString.contains("-NOTIFY"){
     notifyMechAdd = true
 }
 
-if argString.contains("-AD ") {
+if argString.contains("-AD") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.AD, notify: notifyMechAdd)
 } else if argString.contains("-AZURE") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Azure, notify: notifyMechAdd)
@@ -204,9 +202,9 @@ if argString.contains("-SYSPREFSRESET") {
     }
 }
 
-if argString.contains("-ADDDEFAULTJCRIGHT") {
-    for impactedEntry in (preferences.AddDefaultJCRight)["impactedEntries"] as! [String]{
-        editingConfiguration[impactedEntry] = (preferences.AddDefaultJCRight)["rule"] as! [String : AnyObject]
+if argString.contains("-DEFAULTJCRIGHT") {
+    for impactedEntry in (preferences.DefaultJCRight)["impactedEntries"] as! [String]{
+        editingConfiguration[impactedEntry] = (preferences.DefaultJCRight)["rule"] as! [String : AnyObject]
     }
 }
 

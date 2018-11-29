@@ -88,7 +88,7 @@ class Preferences {
         "defaultMechs" : ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
     ]
     
-    let AddDefaultJCRight: [String: Any] = [
+    let DefaultJCRight: [String: Any] = [
         "impactedEntries": ["com.jamf.connect.sudosaml"],
         "rule": [
             "version" : 1 as Int,
@@ -129,7 +129,7 @@ class Preferences {
         
         Experimental options for working with sudo authorization:
         
-        -AddDefaultJCRight : adds the mechanism to be used with the sudosaml binary
+        -DefaultJCRight : adds the mechanism to be used with the sudosaml binary
         
         In addition to setting basic setups, you can also specify custom rules to be put in.
         
