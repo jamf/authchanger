@@ -26,7 +26,7 @@ Authchanger is a utility to help you manage the authorization database used by m
 
 * -AddDefaultJCRight : adds the mechanism to be used with the sudosaml binary
 
-In addition to setting basic setups, you can also specify custom rules to be put in.
+### In addition to setting basic setups, you can also specify custom rules to be put in.
 
 * -preLogin       : mechs to be used before the actual UI is shown
 * -preAuth        : mechs to be used between the login UI and actual authentication
