@@ -10,7 +10,7 @@ import Foundation
 
 class Preferences {
     
-    // New Hotness
+    // New Hotness -Johan
     
     let version = "2.0.0"
     
