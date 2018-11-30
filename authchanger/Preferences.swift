@@ -121,6 +121,7 @@ class Preferences {
         -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, or -Setup argument
         -Print          : prints the current list of authorization mechanisms
         -Debug          : does a dry run of the changes and prints out what would have happened
+        -CustomRule     : allows the printout of any authorizationDB rule as well as setting of that rule to any custom mechanism/s
         
         Experimental options for working with Admin authorization:
         
@@ -137,19 +138,38 @@ class Preferences {
         -preAuth        : mechs to be used between the login UI and actual authentication
         -postAuth       : mechs to be used after system authentication
         
-        Useage
+        Usage
         
-        authchanger -reset
+            authchanger -reset
         
-        Will ensure that the authdb is reset to factory defaults
+                Will ensure that the authdb is reset to factory defaults for the following entries:
+                    system.login.console
+                    system.services.systemconfiguration.network
+                    system.preferences.network
         
-        authchanger -print
+            authchanger -print
         
-        Will display the current authdb settings.
+                Will display the current authdb settings for the following entries:
+                    system.login.console
+                    system.services.systemconfiguration.network
+                    system.preferences.network
         
-        authchanger -debug -reset -Okta -Notify -preLogin CustomMechanism:Something AnotherCustomMechanism:Notify
+            authchanger -CustomRule authenticate -print
         
-        Will reset the authdb then add NoMAD Login+Okta settings as well as the Okta notify mechanism, followed by adding the two custom mechanisms before the login window open. The -debug flag will show you the resulting output without actually making the change.
+                Will print out the current rule for authenticate in the authorization database
+        
+            authchanger -CustomRule authenticate CustomMechanism:Something AnotherCustomMechanism:Notify -debug
+        
+                Will overwrite the authenticate rule mechanism list with the two defined mechanisms and print out the changes it would have made
+        
+            authchanger -CustomRule authenticate CustomMechanism:Something AnotherCustomMechanism:Notify
+        
+                Overwrites the authenticate rule mechanisms with the two defined. This will also print out the previously set rule for reference
+        
+            authchanger -debug -reset -Okta -Notify -preLogin CustomMechanism:Something AnotherCustomMechanism:Notify
+        
+                Will reset the authdb then add NoMAD Login+Okta settings as well as the Okta notify mechanism, followed by adding the two custom
+                mechanisms before the login window open. The -debug flag will show you the resulting output without actually making the change.
         
         """
         print(help)

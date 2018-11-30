@@ -16,6 +16,7 @@ Authchanger is a utility to help you manage the authorization database used by m
 * -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, or -Setup argument
 * -Print          : prints the current list of authorization mechanisms
 * -Debug          : does a dry run of the changes and prints out what would have happened
+* -CustomRule     : allows the printout of any authorizationDB rule as well as setting of that rule to any custom mechanism/s
 
 ### Experimental options for working with Admin authorization:
 
