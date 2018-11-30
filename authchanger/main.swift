@@ -142,9 +142,9 @@ func authorizationDBPrettyPrint(authDBConfiguration: [String: [String: AnyObject
         
         for EntryPropertyKey in (authDBConfiguration[authDBEntryKey]?.keys)! {
             
-            if EntryPropertyKey == "mechanisms" {
+            if EntryPropertyKey == "mechanisms" || EntryPropertyKey == "rules"{
                 let entryMechs = entryProperty?[EntryPropertyKey]
-                print("   mechanisms:")
+                print("   \(EntryPropertyKey):")
                 for mechName in entryMechs as! [String]{
                     print("      \(mechName)")
                 }
@@ -307,10 +307,24 @@ if argString.contains("-CUSTOMRULE") {
         print("Previous Rule for reference:\n")
         authorizationDBPrettyPrint(authDBConfiguration: currentConfiguration)
     }
-    if (tmpEditingConfigurationMech?["class"] as! String) != "evaluate-mechanisms" {
-        print("WARNING: This rule is not set to evaluate mechanisms")
+    if !(customRuleMechs.count >= 1) {
+        print("More parameters necessary, please see -help documentation")
+        exit(1)
     }
-    tmpEditingConfigurationMech?["mechanisms"] = customRuleMechs as AnyObject
+    let customKeyName = customRuleMechs.remove(at: 0)
+    switch customKeyName {
+    case "mechanisms":
+        tmpEditingConfigurationMech?["mechanisms"] = customRuleMechs as AnyObject
+        tmpEditingConfigurationMech?["class"] = "evaluate-mechanisms" as AnyObject
+        tmpEditingConfigurationMech?["rule"] = nil
+    case "rules":
+        tmpEditingConfigurationMech?["rules"] = customRuleMechs as AnyObject
+        tmpEditingConfigurationMech?["class"] = "rule" as AnyObject
+        tmpEditingConfigurationMech?["mechanisms"] = nil
+    default:
+        break
+    }
+    
     editingConfiguration[customRuleName] = tmpEditingConfigurationMech
 }
 
