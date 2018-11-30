@@ -41,7 +41,7 @@ Note: The -CustomRule parameter will change the class the rule from "rule" to "e
 * authchanger -reset
 
 &nbsp;Will ensure that the authdb is reset to factory defaults for the following entries:
-⋅⋅⋅⋅⋅⋅system.login.console
+&nbsp;&nbsp;system.login.console
 ⋅⋅⋅⋅⋅⋅system.services.systemconfiguration.network
 ⋅⋅⋅⋅⋅⋅system.preferences.network
 
