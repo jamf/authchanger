@@ -78,6 +78,10 @@ func getImpactedEntries(arguments: [String]) -> [String]{
             for domain in preferences.AD["impactedEntries"] as! [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
+        case "-CUSTOMRULE":
+            let argArrayCap = (CommandLine.arguments).map{$0.uppercased()}
+            let argIndex = argArrayCap.firstIndex(of: "-CUSTOMRULE")
+            impactedEntries.appendIfNotContains((CommandLine.arguments)[argIndex! + 1])
         default:
             break
         }
@@ -155,12 +159,6 @@ func authorizationDBPrettyPrint(authDBConfiguration: [String: [String: AnyObject
 // Getting the current configuration of the machine for the preferences necessary
 let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(arguments: CommandLine.arguments))
 
-// print version and quit if asked
-if argString.contains("-PRINT") {
-    authorizationDBPrettyPrint(authDBConfiguration: currentConfiguration)
-    exit(0)
-}
-
 // Making a copy of the configuraiton to edit
 var editingConfiguration = currentConfiguration as [String: [String: AnyObject]]
 
@@ -211,8 +209,8 @@ if argString.contains("-DEFAULTJCRIGHT") {
 
 // getting all mechanisms from the parameters given in
 // this code is dirty..... -Johan
-var preLoginMechs:[String] = [], preAuthMechs:[String] = [], postAuthMechs:[String] = []
-if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argString.contains("-POSTAUTH") {
+var preLoginMechs:[String] = [], preAuthMechs:[String] = [], postAuthMechs:[String] = [], customRuleMechs:[String] = []
+if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argString.contains("-POSTAUTH") || argString.contains("-CUSTOMRULE"){
     let argArrayCap = (CommandLine.arguments).map{$0.uppercased()}
     var i = 1
     while i < argArrayCap.count {
@@ -246,14 +244,25 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
             }
             i -= 1
         }
+        if argArrayCap[i] == "-CUSTOMRULE" {
+            i += 1
+            if i >= argArrayCap.count{break}
+            while !(argArrayCap[i]).hasPrefix("-"){
+                customRuleMechs.append((CommandLine.arguments)[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
         i += 1
     }
 }
 
-// reversing everything
+// reversing the pre and post mech lists for addition
 preLoginMechs.reverse()
 preAuthMechs.reverse()
 postAuthMechs.reverse()
+
 
 if argString.contains("-PRELOGIN") {
     var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
@@ -286,6 +295,31 @@ if argString.contains("-POSTAUTH") {
     editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
 }
 
+if argString.contains("-CUSTOMRULE") {
+    
+    let customRuleName = customRuleMechs.remove(at: 0)
+    var tmpEditingConfigurationMech = editingConfiguration[customRuleName]
+    
+    if argString.contains("-PRINT"){
+        authorizationDBPrettyPrint(authDBConfiguration: [customRuleName: (currentConfiguration[customRuleName] ?? nil)!])
+        exit(0)
+    } else if !argString.contains("-DEBUG"){
+        print("Previous Rule for reference:\n")
+        authorizationDBPrettyPrint(authDBConfiguration: currentConfiguration)
+    }
+    if (tmpEditingConfigurationMech?["class"] as! String) != "evaluate-mechanisms" {
+        print("WARNING: This rule is not set to evaluate mechanisms")
+    }
+    tmpEditingConfigurationMech?["mechanisms"] = customRuleMechs as AnyObject
+    editingConfiguration[customRuleName] = tmpEditingConfigurationMech
+}
+
+
+// print version and quit if asked
+if argString.contains("-PRINT") {
+    authorizationDBPrettyPrint(authDBConfiguration: currentConfiguration)
+    exit(0)
+}
 
 if argString.contains("-DEBUG") {
     authorizationDBPrettyPrint(authDBConfiguration: editingConfiguration)
