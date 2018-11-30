@@ -258,7 +258,7 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
     }
 }
 
-// reversing the
+// reversing the pre and post mech lists for addition
 preLoginMechs.reverse()
 preAuthMechs.reverse()
 postAuthMechs.reverse()
