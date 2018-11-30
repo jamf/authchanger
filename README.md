@@ -38,36 +38,36 @@ Note: The -CustomRule parameter will change the class the rule from "rule" to "e
 
 ## Usage
 
-authchanger -reset
+* authchanger -reset
 
-Will ensure that the authdb is reset to factory defaults for the following entries:
-system.login.console
-system.services.systemconfiguration.network
-system.preferences.network
+⋅⋅⋅Will ensure that the authdb is reset to factory defaults for the following entries:
+⋅⋅⋅⋅⋅⋅system.login.console
+⋅⋅⋅⋅⋅⋅system.services.systemconfiguration.network
+⋅⋅⋅⋅⋅⋅system.preferences.network
 
-authchanger -print
+* authchanger -print
 
-Will display the current authdb settings for the following entries:
-system.login.console
-system.services.systemconfiguration.network
-system.preferences.network
+⋅⋅⋅Will display the current authdb settings for the following entries:
+⋅⋅⋅⋅⋅⋅system.login.console
+⋅⋅⋅⋅⋅⋅system.services.systemconfiguration.network
+⋅⋅⋅⋅⋅⋅system.preferences.network
 
-authchanger -CustomRule authenticate -print
+* authchanger -CustomRule authenticate -print
 
-Will print out the current rule for authenticate in the authorization database
+⋅⋅⋅Will print out the current rule for authenticate in the authorization database
 
-authchanger -CustomRule authenticate mechanisms CustomMechanism:Something AnotherCustomMechanism:Notify -debug
+* authchanger -CustomRule authenticate mechanisms CustomMechanism:Something AnotherCustomMechanism:Notify -debug
 
-Will overwrite the authenticate rule mechanism list with the two defined mechanisms and print out the changes it would have made
+⋅⋅⋅Will overwrite the authenticate rule mechanism list with the two defined mechanisms and print out the changes it would have made
 
-authchanger -CustomRule system.login.screensaver rules authenticate-session-owner-or-admin
+* authchanger -CustomRule system.login.screensaver rules authenticate-session-owner-or-admin
 
-Overwrites the system.login.screensaver rule with the defined one. This will also print out the previously set rule for reference
+⋅⋅⋅Overwrites the system.login.screensaver rule with the defined one. This will also print out the previously set rule for reference
 
-authchanger -debug -reset -Okta -Notify -preLogin CustomMechanism:Something AnotherCustomMechanism:Notify
+* authchanger -debug -reset -Okta -Notify -preLogin CustomMechanism:Something AnotherCustomMechanism:Notify
 
-Will reset the authdb then add NoMAD Login+Okta settings as well as the Okta notify mechanism, followed by adding the two custom
-mechanisms before the login window open. The -debug flag will show you the resulting output without actually making the change.
+⋅⋅⋅Will reset the authdb then add NoMAD Login+Okta settings as well as the Okta notify mechanism, followed by adding the two custom
+⋅⋅⋅mechanisms before the login window open. The -debug flag will show you the resulting output without actually making the change.
 
 
 ## Pull from Defaults - WIP
