@@ -121,7 +121,11 @@ class Preferences {
         -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, or -Setup argument
         -Print          : prints the current list of authorization mechanisms
         -Debug          : does a dry run of the changes and prints out what would have happened
-        -CustomRule     : allows the printout of any authorizationDB rule as well as setting of that rule to any custom mechanism/s
+        
+        -CustomRule ["mechanisms" | "rules"] <Mechs/Rules seperated by spaces>
+                        : allows the printout of any authorizationDB rule as well as setting of that rule to any custom mechanism/s
+        
+        Note: The -CustomRule parameter will change the class the rule from "rule" to "evaluate-mechanism" if necessary, and vice-versa
         
         Experimental options for working with Admin authorization:
         
@@ -158,13 +162,13 @@ class Preferences {
         
                 Will print out the current rule for authenticate in the authorization database
         
-            authchanger -CustomRule authenticate CustomMechanism:Something AnotherCustomMechanism:Notify -debug
+            authchanger -CustomRule authenticate mechanisms CustomMechanism:Something AnotherCustomMechanism:Notify -debug
         
                 Will overwrite the authenticate rule mechanism list with the two defined mechanisms and print out the changes it would have made
         
-            authchanger -CustomRule authenticate CustomMechanism:Something AnotherCustomMechanism:Notify
+            authchanger -CustomRule system.login.screensaver rules authenticate-session-owner-or-admin
         
-                Overwrites the authenticate rule mechanisms with the two defined. This will also print out the previously set rule for reference
+                Overwrites the system.login.screensaver rule with the defined one. This will also print out the previously set rule for reference
         
             authchanger -debug -reset -Okta -Notify -preLogin CustomMechanism:Something AnotherCustomMechanism:Notify
         
