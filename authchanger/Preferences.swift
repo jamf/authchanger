@@ -23,7 +23,7 @@ class Preferences {
     
     let AD = [
         "impactedEntries": ["system.login.console"],
-        "frontMechs": ["NoMADLoginAD:CheckAD", "NoMADLoginAD:PowerControl,privileged", "NoMADLoginAD:EULA", "NoMADLoginAD:CreateUser,privileged", "NoMADLoginAzure:DeMobilize,privileged"],
+        "frontMechs": ["NoMADLoginAD:CheckAD", "NoMADLoginAD:PowerControl,privileged", "NoMADLoginAD:EULA", "NoMADLoginAD:CreateUser,privileged", "NoMADLoginAD:DeMobilize,privileged"],
         "endMechs": ["NoMADLoginAD:EnableFDE,privileged", "NoMADLoginAD:SierraFixes,privileged", "NoMADLoginAD:KeychainAdd,privileged"],
         "notifyMech": ["NoMADLoginAD:Notify"]
     ]
