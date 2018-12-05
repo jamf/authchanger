@@ -142,7 +142,7 @@ func authorizationDBPrettyPrint(authDBConfiguration: [String: [String: AnyObject
         
         for EntryPropertyKey in (authDBConfiguration[authDBEntryKey]?.keys)! {
             
-            if EntryPropertyKey == "mechanisms" || EntryPropertyKey == "rules"{
+            if EntryPropertyKey == "mechanisms" || EntryPropertyKey == "rule"{
                 let entryMechs = entryProperty?[EntryPropertyKey]
                 print("   \(EntryPropertyKey):")
                 for mechName in entryMechs as! [String]{
@@ -318,7 +318,7 @@ if argString.contains("-CUSTOMRULE") {
         tmpEditingConfigurationMech?["class"] = "evaluate-mechanisms" as AnyObject
         tmpEditingConfigurationMech?["rule"] = nil
     case "rules":
-        tmpEditingConfigurationMech?["rules"] = customRuleMechs as AnyObject
+        tmpEditingConfigurationMech?["rule"] = customRuleMechs as AnyObject
         tmpEditingConfigurationMech?["class"] = "rule" as AnyObject
         tmpEditingConfigurationMech?["mechanisms"] = nil
     default:
