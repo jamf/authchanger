@@ -35,6 +35,13 @@ class Preferences {
         "notifyMech": ["NoMADLoginOkta:Notify"]
     ]
     
+    let OIDC = [
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["JamfConnectLogin:CheckOIDC", "JamfConnectLogin:PowerControl,privileged", "JamfConnectLogin:CreateUser,privileged", "JamfConnectLogin:DeMobilize,privileged"],
+        "endMechs": ["JamfConnectLogin:EnableFDE,privileged", "JamfConnectLogin:SierraFixes,privileged", "JamfConnectLogin:KeychainAdd,privileged"],
+        "notifyMech": ["JamfConnectLogin:Notify"]
+    ]
+    
     let Setup = [
         "impactedEntries": ["system.login.console"],
         "frontMechs": ["NoMADLoginSetup:Setup", "NoMADLoginSetup:RunScript,privileged"],
@@ -114,11 +121,12 @@ class Preferences {
         -Help | -h      : prints this help statement
         -Reset          : resets the login screen to the factory settings
         -Okta           : sets up NoMAD Login+Okta
+        -OIDC           : sets up Jamf Connect Login for Open ID Connect auth
         -AD             : sets up NoMAD LoginAD
         -Azure          : sets up NoMAD Login Azure
         -Ping           : sets up NoMAD Ping
         -Demobilize     : sets up NoMAD LoginAD to only demobilze accounts
-        -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, or -Setup argument
+        -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, -OIDC or -Setup argument
         -Print          : prints the current list of authorization mechanisms
         -Debug          : does a dry run of the changes and prints out what would have happened
         
