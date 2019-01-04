@@ -9,440 +9,339 @@
 import Foundation
 import Security.AuthorizationDB
 
-let kSystemRightConsole = "system.login.console"
-let kloginwindow_ui = "loginwindow:login"
-let kloginwindow_success = "loginwindow:success"
-let klogindindow_home = "HomeDirMechanism:status"
-let kmechanisms = "mechanisms"
+let preferences = Preferences()
+let authdb = authorizationdb()
 
-let version = "1.2.1"
-
-// defaults - macOS 10.13
-
-let defaultMechs = ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
-
-// AD mechanisms
-
-let kLACheckAD = "NoMADLoginAD:CheckAD"
-let kLAEULA = "NoMADLoginAD:EULA"
-let kLAPowerControl = "NoMADLoginAD:PowerControl,privileged"
-let kLACreateUser = "NoMADLoginAD:CreateUser,privileged"
-let kLADeMobilize = "NoMADLoginAD:DeMobilize,privileged"
-let kLAEnableFDE = "NoMADLoginAD:EnableFDE,privileged"
-let kLAKeychainAdd = "NoMADLoginAD:KeychainAdd,privileged"
-let kLASierraFixes = "NoMADLoginAD:SierraFixes,privileged"
-//let kLANotify = "NoMADLoginAD:Notify"
-
-// Okta mechanisms
-
-let kLOCheckOkta = "NoMADLoginOkta:CheckOkta"
-let kLOPowerControl = "NoMADLoginOkta:PowerControl,privileged"
-let kLOCreateUser = "NoMADLoginOkta:CreateUser,privileged"
-let kLODeMobilize = "NoMADLoginOkta:DeMobilize,privileged"
-let kLOEnableFDE = "NoMADLoginOkta:EnableFDE,privileged"
-let kLOSierraFixes = "NoMADLoginOkta:SierraFixes,privileged"
-let kLOKeychainAdd = "NoMADLoginOkta:KeychainAdd,privileged"
-let kLONotify = "NoMADLoginOkta:Notify"
-
-// Azure mechanisms
-
-let kLAzCheckAzure = "NoMADLoginAzure:CheckAzure"
-let kLAzPowerControl = "NoMADLoginAzure:PowerControl,privileged"
-let kLAzCreateUser = "NoMADLoginAzure:CreateUser,privileged"
-let kLAzDeMobilize = "NoMADLoginAzure:DeMobilize,privileged"
-let kLAzEnableFDE = "NoMADLoginAzure:EnableFDE,privileged"
-let kLAzSierraFixes = "NoMADLoginAzure:SierraFixes,privileged"
-let kLAzKeychainAdd = "NoMADLoginAzure:KeychainAdd,privileged"
-let kLAzNotify = "NoMADLoginAzure:Notify"
-
-// Ping mechanisms
-
-let kLPCheckPing = "NoMADLoginPing:CheckPing"
-let kLPPowerControl = "NoMADLoginPing:PowerControl,privileged"
-let kLPCreateUser = "NoMADLoginPing:CreateUser,privileged"
-let kLPDeMobilize = "NoMADLoginPing:DeMobilize,privileged"
-let kLPEnableFDE = "NoMADLoginPing:EnableFDE,privileged"
-let kLPSierraFixes = "NoMADLoginPing:SierraFixes,privileged"
-let kLPKeychainAdd = "NoMADLoginPing:KeychainAdd,privileged"
-let kLPNotify = "NoMADLoginPing:Notify"
-
-// Setup mechanisms
-
-let kLSSetup = "NoMADLoginSetup:Setup"
-let kLSRunScript = "NoMADLoginSetup:RunScript,privileged"
-let kLSNotify = "NoMADLoginSetup:Notify"
-
-// System Preferences
-
-let kSPNetwork = "system.preferences.network"
-let kSPNetworkConfiguration = "system.services.systemconfiguration.network"
-let kSPsudoSAML = "com.jamf.connect.sudosaml"
-
-let azureRule : [ String : Any ] = [
-    "version" : 1 as Int,
-    "comment" : "Rule to allow for Azure authentication" as String,
-    "mechanisms" : [ "NoMADLoginAzure:AuthUI" ] as [String],
-    "class" : "evaluate-mechanisms" as String,
-    "shared" : true as Bool,
-    "tries" : 10000 as Int
-]
-
-let defaultRule : [ String : Any ] = [
-    "group": "admin",
-    "timeout": 2147483647,
-    "version": 0,
-    "tries": 10000,
-    "comment": "Checked by the Admin framework when making changes to the Network preference pane.",
-    "modified": 555548986.9298199,
-    "class": "user",
-    "session-owner": 0,
-    "authenticate-user": 1,
-    "created": 555548986.9298199,
-    "shared": 1,
-    "allow-root": 1
-]
-
-var rights : CFDictionary? = nil
 var err = OSStatus.init(0)
-var authRef : AuthorizationRef? = nil
-var mechs = [String]()
-var mechChange = false
 
-// Arguments
+// New Hotness - Johan
 
-var printMechs = false
-var writePath = ""
-var preLogin : [String]?
-var preAuth : [String]?
-var postAuth : [String]?
-var AD = false
-var Okta = false
-var Azure = false
-var Ping = false
-var deMobilize = false
-var setup = false
-var stashPath : String?
+// full arguments list as single string
+let argString = CommandLine.arguments.joined(separator: " ").uppercased()
 
-// Index keys
-
-var loginIndex : Int?
-var authIndex : Int?
-
-///MARK: helper functions
-
-func getLogin() {
-    // find the loginwindow UI index
-    
-    loginIndex = mechs.index(of: kloginwindow_ui)
-    
-    if loginIndex == nil {
-        // try for AD
-        loginIndex = mechs.index(of: kLACheckAD)
-    }
-    
-    if loginIndex == nil {
-        loginIndex = mechs.index(of: kLOCheckOkta)
-    }
-}
-
-err = AuthorizationRightGet(kSPNetwork, &rights)
-
-var tempRights = rights as! Dictionary<String,AnyObject>
-
-print(tempRights)
-
-// check for a help arg
-
-if CommandLine.arguments.contains("-h") || CommandLine.arguments.contains("-help") {
-    
-    // print help statement
-    
-    let help = """
-authchanger is a utility to help you manage the authorization database used by macOS to determine how the login process progresses.
-
-version: \(version)
-
-Note: This utilty must be run as root.
-
-Some basic options:
-
--version        : prints the version number
--help | -h      : prints this help statement
--reset          : resets the auth database to the factory settings
--Okta           : sets up NoMAD Login+Okta
--AD             : sets up NoMAD LoginAD
--Azure          : sets up NoMAD Login Azure
--demobilize     : sets up NoMAD LoginAD to only demobilze accounts
--print          : prints the current list of authorization mechanisms
--debug          : does a dry run of the changes and prints out what would have happened
-
-Experimental options for working with Admin authorization:
-    
--SysPrefs       : enables Azure auhentication for the Network Preference Pane
--SysPrefsReset  : removes Azure authentication for the Network Preference Pane
-
-In addition to setting basic setups, you can also specify custom rules to be put in.
-
--preLogin       : mechs to be used before the actual UI is shown
--preAuth        : mechs to be used between the login UI and actual authentication
--postAuth       : mechs to be used after system authentication
-
-Useage
-
-    authchanger -reset -AD
-
-Will ensure that the authdb is reset to factory defaults and then enable NoMAD LoginAD.
-
-    authchanger -print
-
-Will display the current authdb settings.
-
-    authchanger -debug -reset -Okta -preLogin "NoMADLoginOkta:RunScript,privileged, NoMADLoginOkta:Notify"
-
-Will reset the authdb then add NoMAD Login+Okta settings and and the RunScript and Notify mechanisms before the NoMAD Login+Okta UI is shown. The -debug flag will show you the resulting output without actually making the change.
-
-"""
-    
-    print(help)
+// print help and quit if asked
+if argString.contains("-H") || argString.contains("-HELP") {
+    Preferences.help(Preferences())()
     exit(0)
-}
-
-// get all of the CLI args, and parse them
-
-let args = CommandLine.arguments
-
-for i in 0...(args.count - 2) {
-    
-    if args[i] == "-preLogin" {
-        preLogin = args[i + 1].components(separatedBy: ", ")
-    } else if args[i] == "-preAuth" {
-        preAuth = args[i + 1].components(separatedBy: ", ")
-    } else if args[i] == "-postAuth" {
-        postAuth = args[i + 1].components(separatedBy: ", ")
-    } else if args[i] == "-stash" {
-        stashPath = args[i + 1]
-    }
-}
-
-if args.contains("-AD") {
-    AD = true
-} else if args.contains("-Okta") {
-    Okta = true
-} else if args.contains("-setup") {
-    setup = true
-} else if args.contains("-Azure") {
-    Azure = true
-} else if args.contains("-Ping") {
-    Ping = true
-} else if args.contains("-demobilize") {
-    deMobilize = true
 }
 
 // print version and quit if asked
-
-if args.contains("-version") {
-    print(version)
+if argString.contains("-VERSION") {
+    print(preferences.version)
     exit(0)
 }
 
-// get an authorization context to save this back
-// need to be root, if we are this should return clean
-
-err = AuthorizationCreate(nil, nil, AuthorizationFlags(rawValue: 0), &authRef)
-
-// get the current rights for system.login.console
-
-err = AuthorizationRightGet(kSystemRightConsole, &rights)
-
-// Now to iterate through the list and add what we need
-
-var rightsDict = rights as! Dictionary<String,AnyObject>
-mechs = rightsDict[kmechanisms] as! Array<String>
-
-if stashPath != nil {
-    
-    try? String(describing: mechs).write(to: URL.init(fileURLWithPath: stashPath!), atomically: true, encoding: String.Encoding.utf8)
-}
-
-// reset the settings if asked
-
-if CommandLine.arguments.contains("-reset") {
-    mechs.removeAll()
-    mechs = defaultMechs
-}
-
-getLogin()
-
-// if asked print the mechs
-
-if CommandLine.arguments.contains("-print") {
-    for mech in mechs {
-        print("\t\(mech)")
+extension Array where Element: Equatable {
+    @discardableResult
+    mutating func appendIfNotContains(_ element: Element) -> (appended: Bool, memberAfterAppend: Element) {
+        if !contains(element) {
+            append(element)
+            return (true, element)
+        }
+        return (false, element)
     }
 }
 
-if AD {
-    if loginIndex != nil {
-        mechs[loginIndex!] = kLACheckAD
-        mechs.insert(kLAPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLAEULA, at: loginIndex! + 2)
-        mechs.insert(kLACreateUser, at: loginIndex! + 3)
-        mechs.insert(kLADeMobilize, at: loginIndex! + 4)
+func getImpactedEntries(arguments: [String]) -> [String]{
+    var impactedEntries: [String] = []
+    for arg in arguments[1...] {
         
-        //mechs.insert("NoMADLogin:Notify", at: index! - 1)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(kLAEnableFDE)
-        mechs.append(kLASierraFixes)
-        mechs.append(kLAKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
+        switch(arg.uppercased()){
+            
+        // All of these parameters edit the same entry
+        case "-AZURE",
+             "-AD",
+             "-OKTA",
+             "-OIDC",
+             "-SETUP",
+             "-PING",
+             "-DEMOBILIZE",
+             "-PRELOGIN",
+             "-PREAUTH",
+             "-POSTAUTH":
+            for domain in preferences.AD["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        case "-SYSPREFS",
+             "-SYSPREFSRESET" :
+            for domain in preferences.SysPrefs["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        case "-DEFAULTJCRIGHT" :
+            for domain in preferences.DefaultJCRight["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        case "-RESET",
+             "-PRINT":
+            for domain in preferences.SysPrefs["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+            for domain in preferences.AD["impactedEntries"] as! [String]{
+                impactedEntries.appendIfNotContains(domain)
+            }
+        case "-CUSTOMRULE":
+            let argArrayCap = (CommandLine.arguments).map{$0.uppercased()}
+            let argIndex = argArrayCap.firstIndex(of: "-CUSTOMRULE")
+            impactedEntries.appendIfNotContains((CommandLine.arguments)[argIndex! + 1])
+        default:
+            break
+        }
     }
-    
-} else if Okta {
-    
-    if loginIndex != nil {
-        mechs[loginIndex!] = kLOCheckOkta
-        mechs.insert(kLOPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLOCreateUser, at: loginIndex! + 2)
-        mechs.insert(kLODeMobilize, at: loginIndex! + 3)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(kLOEnableFDE)
-        mechs.append(kLOSierraFixes)
-        mechs.append(kLOKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if Azure {
-    if loginIndex != nil {
-        mechs[loginIndex!] = kLAzCheckAzure
-        mechs.insert(kLAzPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLAzCreateUser, at: loginIndex! + 2)
-        mechs.insert(kLAzDeMobilize, at: loginIndex! + 3)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(kLAzEnableFDE)
-        mechs.append(kLAzSierraFixes)
-        mechs.append(kLAzKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if setup {
-    if loginIndex != nil {
-        mechs[loginIndex!] = kLSSetup
-        mechs.insert(kLSRunScript, at: loginIndex! + 1)
-        mechs.insert(kLSNotify, at: loginIndex! + 2)
-                
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if Ping {
-    if loginIndex != nil {
-        mechs[loginIndex!] = kLPCheckPing
-        mechs.insert(kLPPowerControl, at: loginIndex! + 1)
-        mechs.insert(kLPCreateUser, at: loginIndex! + 2)
-        mechs.insert(kLPDeMobilize, at: loginIndex! + 3)
-        
-        // add EnableFDE at the end
-        
-        mechs.append(kLPEnableFDE)
-        mechs.append(kLPSierraFixes)
-        mechs.append(kLPKeychainAdd)
-    } else {
-        print("Unable to get the login mechanism")
-    }
-} else if deMobilize {
-    if loginIndex != nil {
-        mechs.insert(kLADeMobilize, at: loginIndex! + 1)
-    } else {
-        print("Unable to get the login mechanism")
-    }
+    return impactedEntries
 }
 
-if preLogin != nil || preAuth != nil || postAuth != nil {
+// default mechanism addition function to avoid the code replication in the initial version
+
+func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]], mechDict: [String: [String]], notify: Bool = false) -> [String: [String: AnyObject]]{
+
+    var tmpEditingConfiguration = editingConfiguration
     
-    var newMechs = [String]()
-    
-    if preLogin != nil {
-        newMechs = preLogin!
-    }
-    
-    newMechs.append(contentsOf: mechs)
-    
-    // get the login mech
-    
-    getLogin()
-    
-    if loginIndex != nil {
+    for impactedMech in (mechDict["impactedEntries"] as! [String]){
         
-        if preAuth != nil {
-            for i in 0...(preAuth!.count - 1) {
-                newMechs.insert(preAuth![i], at: loginIndex! + ( i + 1 ))
+        var tmpEditingConfigurationMech = editingConfiguration[impactedMech]
+        var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+        
+        // adding the increment for demobilize only setting
+        var increment = 1
+        if((mechDict["frontMechs"] as! [String])[0].contains("DeMobilize")){
+            increment = 2
+        } else {
+            // removing the loginwindow mechanism if not only demobilize
+            editingMech.remove(at: 1)
+        }
+        
+        // adding the front mechanisms
+        var frontMechs = (mechDict["frontMechs"] as! [String]).reversed()
+        for addingMech in frontMechs {
+            editingMech.insert(addingMech, at: increment)
+        }
+        
+        // adding the notify mechanism if specified
+        if notify {
+            let additionIndex = editingMech.firstIndex(of: "builtin:login-begin") as! Int
+            for addingMech in (mechDict["notifyMech"] as! [String]).reversed() {
+                editingMech.insert(addingMech, at: additionIndex)
             }
         }
         
-        if postAuth != nil {
-            newMechs.append(contentsOf: postAuth!)
+        // appending the rear mechanisms
+        for addingMech in mechDict["endMechs"] as! [String]{
+            editingMech.append(addingMech)
         }
+        
+        // rebuilding the edited master authdb
+        tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+        tmpEditingConfiguration[impactedMech] = tmpEditingConfigurationMech
     }
-    
-    if newMechs != mechs {
-        // swap new set in for old set
-        mechs = newMechs
-        mechChange = true
+    return tmpEditingConfiguration
+}
+
+func authorizationDBPrettyPrint(authDBConfiguration: [String: [String: AnyObject]]){
+    for authDBEntryKey in authDBConfiguration.keys {
+        print("Entry: " + authDBEntryKey)
+        let entryProperty = authDBConfiguration[authDBEntryKey]
+        
+        for EntryPropertyKey in (authDBConfiguration[authDBEntryKey]?.keys)! {
+            
+            if EntryPropertyKey == "mechanisms" || EntryPropertyKey == "rule"{
+                let entryMechs = entryProperty?[EntryPropertyKey]
+                print("   \(EntryPropertyKey):")
+                for mechName in entryMechs as! [String]{
+                    print("      \(mechName)")
+                }
+            } else {
+                print("   " + EntryPropertyKey + " : \(entryProperty![EntryPropertyKey]!)")
+            }
+        }
+        print()
     }
 }
 
-if CommandLine.arguments.contains("-debug") {
-    print("*** Mech List ***")
-    for mech in mechs {
-        print("\t\(mech)")
+// Getting the current configuration of the machine for the preferences necessary
+let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(arguments: CommandLine.arguments))
+
+// Making a copy of the configuraiton to edit
+var editingConfiguration = currentConfiguration as [String: [String: AnyObject]]
+
+if argString.contains("-RESET") {
+    var tmpEditingConfigurationMech = editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]]
+    tmpEditingConfigurationMech?["mechanisms"] = (preferences.Reset)["defaultMechs"] as AnyObject
+    editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]] = tmpEditingConfigurationMech
+}
+
+var notifyMechAdd: Bool = false
+if argString.contains("-NOTIFY"){
+    notifyMechAdd = true
+}
+
+if argString.contains("-AD") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.AD, notify: notifyMechAdd)
+} else if argString.contains("-AZURE") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Azure, notify: notifyMechAdd)
+} else if argString.contains("-OIDC") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.OIDC, notify: notifyMechAdd)
+} else if argString.contains("-OKTA") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Okta, notify: notifyMechAdd)
+} else if argString.contains("-SETUP") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Setup, notify: notifyMechAdd)
+} else if argString.contains("-PING") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Ping)
+} else if argString.contains("-DEMOBILIZE") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobilze)
+}
+
+// There is some more code minimization that can be done below
+
+if argString.contains("-SYSPREFS") {
+    for impactedEntry in (preferences.SysPrefs)["impactedEntries"] as! [String]{
+        editingConfiguration[impactedEntry] = (preferences.SysPrefs)["rule"] as! [String : AnyObject]
     }
+}
+
+if argString.contains("-SYSPREFSRESET") {
+    for impactedEntry in (preferences.SysPrefsReset)["impactedEntries"] as! [String]{
+        editingConfiguration[impactedEntry] = (preferences.SysPrefsReset)["rule"] as! [String : AnyObject]
+    }
+}
+
+if argString.contains("-DEFAULTJCRIGHT") {
+    for impactedEntry in (preferences.DefaultJCRight)["impactedEntries"] as! [String]{
+        editingConfiguration[impactedEntry] = (preferences.DefaultJCRight)["rule"] as! [String : AnyObject]
+    }
+}
+
+// getting all mechanisms from the parameters given in
+// this code is dirty..... -Johan
+var preLoginMechs:[String] = [], preAuthMechs:[String] = [], postAuthMechs:[String] = [], customRuleMechs:[String] = []
+if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argString.contains("-POSTAUTH") || argString.contains("-CUSTOMRULE"){
+    let argArrayCap = (CommandLine.arguments).map{$0.uppercased()}
+    var i = 1
+    while i < argArrayCap.count {
+        if argArrayCap[i] == "-PRELOGIN" {
+            i += 1
+            if i >= argArrayCap.count{break}
+            while !(argArrayCap[i]).hasPrefix("-"){
+                preLoginMechs.append((CommandLine.arguments)[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
+        if argArrayCap[i] == "-PREAUTH" {
+            i += 1
+            if i >= argArrayCap.count{break}
+            while !(argArrayCap[i]).hasPrefix("-"){
+                preAuthMechs.append((CommandLine.arguments)[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
+        if argArrayCap[i] == "-POSTAUTH" {
+            i += 1
+            if i >= argArrayCap.count{break}
+            while !(argArrayCap[i]).hasPrefix("-"){
+                postAuthMechs.append((CommandLine.arguments)[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
+        if argArrayCap[i] == "-CUSTOMRULE" {
+            i += 1
+            if i >= argArrayCap.count{break}
+            while !(argArrayCap[i]).hasPrefix("-"){
+                customRuleMechs.append((CommandLine.arguments)[i])
+                i += 1
+                if i >= argArrayCap.count{break}
+            }
+            i -= 1
+        }
+        i += 1
+    }
+}
+
+// reversing the pre and post mech lists for addition
+preLoginMechs.reverse()
+preAuthMechs.reverse()
+postAuthMechs.reverse()
+
+
+if argString.contains("-PRELOGIN") {
+    var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
+    var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+    for mech in preLoginMechs {
+        editingMech.insert(mech, at: 1)
+    }
+    tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+    editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
+}
+
+if argString.contains("-PREAUTH") {
+    var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
+    var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+    let additionIndex = editingMech.firstIndex(of: "builtin:login-begin") as! Int
+    for mech in preAuthMechs {
+        editingMech.insert(mech, at: additionIndex)
+    }
+    tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+    editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
+}
+
+if argString.contains("-POSTAUTH") {
+    var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
+    var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+    for mech in postAuthMechs {
+        editingMech.append(mech)
+    }
+    tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
+    editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
+}
+
+if argString.contains("-CUSTOMRULE") {
+    
+    let customRuleName = customRuleMechs.remove(at: 0)
+    var tmpEditingConfigurationMech = editingConfiguration[customRuleName]
+    
+    if argString.contains("-PRINT"){
+        authorizationDBPrettyPrint(authDBConfiguration: [customRuleName: (currentConfiguration[customRuleName] ?? nil)!])
+        exit(0)
+    } else if !argString.contains("-DEBUG"){
+        print("Previous Rule for reference:\n")
+        authorizationDBPrettyPrint(authDBConfiguration: currentConfiguration)
+    }
+    if !(customRuleMechs.count >= 1) {
+        print("More parameters necessary, please see -help documentation")
+        exit(1)
+    }
+    let customKeyName = customRuleMechs.remove(at: 0)
+    switch customKeyName {
+    case "mechanisms":
+        tmpEditingConfigurationMech?["mechanisms"] = customRuleMechs as AnyObject
+        tmpEditingConfigurationMech?["class"] = "evaluate-mechanisms" as AnyObject
+        tmpEditingConfigurationMech?["rule"] = nil
+    case "rules":
+        tmpEditingConfigurationMech?["rule"] = customRuleMechs as AnyObject
+        tmpEditingConfigurationMech?["class"] = "rule" as AnyObject
+        tmpEditingConfigurationMech?["mechanisms"] = nil
+    default:
+        break
+    }
+    
+    editingConfiguration[customRuleName] = tmpEditingConfigurationMech
+}
+
+
+// print version and quit if asked
+if argString.contains("-PRINT") {
+    authorizationDBPrettyPrint(authDBConfiguration: currentConfiguration)
+    exit(0)
+}
+
+if argString.contains("-DEBUG") {
+    authorizationDBPrettyPrint(authDBConfiguration: editingConfiguration)
+    exit(0)
 } else {
-
-rightsDict[kmechanisms] = mechs as AnyObject
-
-    if mechChange && NSUserName() == "root" {
-        err = AuthorizationRightSet(authRef!, kSystemRightConsole, rightsDict as CFTypeRef, nil, nil, nil)
-    } else if mechChange && NSUserName() != "root" {
-        print("Not root, unable to change mechanisms.")
-    } else if !mechChange {
-        print("No change to current mechansims.")
-    }
-}
-
-if CommandLine.arguments.contains("-SysPrefs") {
-    if NSUserName() == "root" {
-        err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, azureRule as CFTypeRef, nil, nil, nil)
-    
-        err = AuthorizationRightSet(authRef!, kSPNetwork, azureRule as CFTypeRef, nil, nil, nil)
-    } else {
-        print("Not root, unable to make changes")
-    }
-}
-
-if CommandLine.arguments.contains("-SysPrefsReset") {
-    if NSUserName() == "root" {
-
-        err = AuthorizationRightSet(authRef!, kSPNetworkConfiguration, defaultRule as CFTypeRef, nil, nil, nil)
-    
-        err = AuthorizationRightSet(authRef!, kSPNetwork, defaultRule as CFTypeRef, nil, nil, nil)
-    } else {
-        print("Not root, unable to make changes")
-
-    }
-}
-
-if CommandLine.arguments.contains("-AddDefaultJCRight") {
-    if NSUserName() == "root" {
-        
-        err = AuthorizationRightSet(authRef!, kSPsudoSAML, azureRule as CFTypeRef, nil, nil, nil)
-    } else {
-        print("Not root, unable to make changes")
-        
-    }
+    // writing everything back
+    authdb.setBatch(setArray: editingConfiguration)
 }
