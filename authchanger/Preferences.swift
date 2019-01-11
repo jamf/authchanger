@@ -100,7 +100,7 @@ class Preferences {
         "rule": [
             "version" : 1 as Int,
             "comment" : "Rule to allow for Azure authentication" as String,
-            "mechanisms" : [ "NoMADLoginAzure:AuthUINoCache" ] as [String],
+            "mechanisms" : [ "JamfConnectLogin:AuthUINoCache" ] as [String],
             "class" : "evaluate-mechanisms" as String,
             "shared" : true as Bool,
             "tries" : 10000 as Int
