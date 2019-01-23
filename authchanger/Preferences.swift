@@ -30,9 +30,9 @@ class Preferences {
     
     let Okta = [
         "impactedEntries": ["system.login.console"],
-        "frontMechs": ["NoMADLoginOkta:CheckOkta", "NoMADLoginOkta:PowerControl,privileged", "NoMADLoginOkta:CreateUser,privileged", "NoMADLoginOkta:DeMobilize,privileged"],
-        "endMechs": ["NoMADLoginOkta:EnableFDE,privileged", "NoMADLoginOkta:SierraFixes,privileged", "NoMADLoginOkta:KeychainAdd,privileged"],
-        "notifyMech": ["NoMADLoginOkta:Notify"]
+        "frontMechs": ["JamfConnectLogin:CheckOkta", "JamfConnectLogin:PowerControl,privileged", "JamfConnectLogin:CreateUser,privileged", "JamfConnectLogin:DeMobilize,privileged"],
+        "endMechs": ["JamfConnectLogin:EnableFDE,privileged", "JamfConnectLogin:SierraFixes,privileged", "JamfConnectLogin:KeychainAdd,privileged"],
+        "notifyMech": ["JamfConnectLogin:Notify"]
     ]
     
     let OIDC = [
