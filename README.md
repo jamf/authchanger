@@ -9,6 +9,7 @@ Authchanger is a utility to help you manage the authorization database used by m
 * -Help | -h      : prints this help statement
 * -Reset          : resets the login screen to the factory settings
 * -Okta           : sets up NoMAD Login+Okta
+* -OIDC           : sets up Jamf Connect Login for Open ID Connect auth
 * -AD             : sets up NoMAD LoginAD
 * -Azure          : sets up NoMAD Login Azure
 * -Ping           : sets up NoMAD Ping
@@ -17,7 +18,7 @@ Authchanger is a utility to help you manage the authorization database used by m
 * -Print          : prints the current list of authorization mechanisms
 * -Debug          : does a dry run of the changes and prints out what would have happened
 * -CustomRule ["mechanisms" | "rules"] <Mechs/Rules seperated by spaces>
-* : allows the printout of any authorizationDB rule as well as setting of that rule to any custom mechanism/s
+                  : allows the printout of any authorizationDB rule as well as setting of that rule to any custom mechanism/s
 
 Note: The -CustomRule parameter will change the class the rule from "rule" to "evaluate-mechanism" if necessary, and vice-versa
 
