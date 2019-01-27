@@ -14,13 +14,6 @@ class Preferences {
     
     let version = "2.0.1"
     
-    let Azure = [
-        "impactedEntries": ["system.login.console"],
-        "frontMechs": ["NoMADLoginAzure:CheckAzure", "NoMADLoginAzure:PowerControl,privileged", "NoMADLoginAzure:CreateUser,privileged", "NoMADLoginAzure:DeMobilize,privileged" ],
-        "endMechs": ["NoMADLoginAzure:EnableFDE,privileged", "NoMADLoginAzure:SierraFixes,privileged", "NoMADLoginAzure:KeychainAdd,privileged"],
-        "notifyMech": ["NoMADLoginAzure:Notify"]
-    ]
-    
     let AD = [
         "impactedEntries": ["system.login.console"],
         "frontMechs": ["NoMADLoginAD:CheckAD", "NoMADLoginAD:PowerControl,privileged", "NoMADLoginAD:EULA", "NoMADLoginAD:CreateUser,privileged", "NoMADLoginAD:DeMobilize,privileged"],
@@ -46,12 +39,6 @@ class Preferences {
         "impactedEntries": ["system.login.console"],
         "frontMechs": ["NoMADLoginSetup:Setup", "NoMADLoginSetup:RunScript,privileged"],
         "notifyMech": ["NoMADLoginSetup:Notify"]
-    ]
-    
-    let Ping = [
-        "impactedEntries": ["system.login.console"],
-        "frontMechs": ["NoMADLoginPing:CheckPing", "NoMADLoginPing:PowerControl,privileged", "NoMADLoginPing:CreateUser,privileged", "NoMADLoginPing:DeMobilize,privileged"],
-        "endMechs": ["NoMADLoginPing:EnableFDE,privileged", "NoMADLoginPing:SierraFixes,privileged", "NoMADLoginPing:KeychainAdd,privileged"]
     ]
     
     let Demobilze = [
@@ -123,10 +110,8 @@ class Preferences {
         -Okta           : sets up NoMAD Login+Okta
         -OIDC           : sets up Jamf Connect Login for Open ID Connect auth
         -AD             : sets up NoMAD LoginAD
-        -Azure          : sets up NoMAD Login Azure
-        -Ping           : sets up NoMAD Ping
         -Demobilize     : sets up NoMAD LoginAD to only demobilze accounts
-        -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, -OIDC or -Setup argument
+        -Notify         : adds the DEP Notify addition to the corresponding -AD, -Okta, -OIDC or -Setup argument
         -Print          : prints the current list of authorization mechanisms
         -Debug          : does a dry run of the changes and prints out what would have happened
         

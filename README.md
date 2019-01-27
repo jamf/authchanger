@@ -2,6 +2,8 @@
 
 Authchanger is a utility to help you manage the authorization database used by macOS to determine how the login process progresses.
 
+This utility is used for both the open source NoMAD Login AD and the commercial Jamf Connect Login applications and is typically included with the standard installation of both.
+
 
 ## Options
 
@@ -11,10 +13,8 @@ Authchanger is a utility to help you manage the authorization database used by m
 * -Okta           : sets up NoMAD Login+Okta
 * -OIDC           : sets up Jamf Connect Login for Open ID Connect auth
 * -AD             : sets up NoMAD LoginAD
-* -Azure          : sets up NoMAD Login Azure
-* -Ping           : sets up NoMAD Ping
 * -Demobilize     : sets up NoMAD LoginAD to only demobilze accounts
-* -Notify         : adds the DEP Notify addition to the corresponding -AD, -Azure, -Okta, or -Setup argument
+* -Notify         : adds the DEP Notify addition to the corresponding -AD, -OIDC, -Okta, or -Setup argument
 * -Print          : prints the current list of authorization mechanisms
 * -Debug          : does a dry run of the changes and prints out what would have happened
 * -CustomRule ["mechanisms" | "rules"] <Mechs/Rules seperated by spaces>
@@ -29,7 +29,7 @@ Note: The -CustomRule parameter will change the class the rule from "rule" to "e
 
 ### Experimental options for working with sudo authorization:
 
-* -DefaultJCRight : adds the mechanism to be used with the sudosaml binary
+* -DefaultJCRight : adds the mechanism to be used with the PAM module from Jamf Connect
 
 ### In addition to setting basic setups, you can also specify custom rules to be put in.
 
@@ -70,12 +70,12 @@ Note: The -CustomRule parameter will change the class the rule from "rule" to "e
 * authchanger -debug -reset -Okta -Notify -preLogin CustomMechanism:Something AnotherCustomMechanism:Notify
 
   Will reset the authdb then add NoMAD Login+Okta settings as well as the Okta notify mechanism, followed by adding the two custom
-  mechanisms before the login window open. The -debug flag will show you the resulting output without actually making the change.
+  mechanisms before the login window is shown. The -debug flag will show you the resulting output without actually making the change.
 
 
 ## Pull from Defaults - WIP
 
 authchanger should use UserDefaults to look up settings and apply as appropriate. As a CLI app we'll have to init with suite, which might actually work really well as you'll then be able to override from the CLI as necessary.
 
-Current thinking is "menu.nomad.login.mechanisms" as the default domains.
+Current thinking is "com.jamf.connect.authchanger" and "menu.nomad.authchanger" as the default domains.
 
