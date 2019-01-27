@@ -176,16 +176,12 @@ if argString.contains("-NOTIFY"){
 
 if argString.contains("-AD") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.AD, notify: notifyMechAdd)
-} else if argString.contains("-AZURE") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Azure, notify: notifyMechAdd)
 } else if argString.contains("-OIDC") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.OIDC, notify: notifyMechAdd)
 } else if argString.contains("-OKTA") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Okta, notify: notifyMechAdd)
 } else if argString.contains("-SETUP") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Setup, notify: notifyMechAdd)
-} else if argString.contains("-PING") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Ping)
 } else if argString.contains("-DEMOBILIZE") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobilze)
 }
