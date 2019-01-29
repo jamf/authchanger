@@ -4,5 +4,5 @@ stages:
 build_project:
   stage: build
   script:
-    - xcodebuild clean | xcpretty
-    - xcodebuild | xcpretty -s
+    - xcodebuild clean -project authchanger.xcodeproj -scheme authchanger | xcpretty
+    - xcodebuild -project authchanger.xcodeproj -scheme authchanger | xcpretty -s
