@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01DC49E42200E961004B68EC /* authchanger_tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DC49E32200E961004B68EC /* authchanger_tests.swift */; };
 		1A95533D1FE4AD3200DB543F /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A95533C1FE4AD3200DB543F /* main.swift */; };
 		FC9AC10721AEC7F600025552 /* authorizationdb.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9AC10621AEC7F600025552 /* authorizationdb.swift */; };
 		FC9AC10921AED31500025552 /* Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9AC10821AED31500025552 /* Preferences.swift */; };
@@ -25,6 +26,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01DC49E12200E961004B68EC /* authchanger-tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "authchanger-tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		01DC49E32200E961004B68EC /* authchanger_tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = authchanger_tests.swift; sourceTree = "<group>"; };
+		01DC49E52200E961004B68EC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A387C4320D368FD00CF35EE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1A9553391FE4AD3200DB543F /* authchanger */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = authchanger; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A95533C1FE4AD3200DB543F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -33,6 +37,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		01DC49DE2200E961004B68EC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1A9553361FE4AD3200DB543F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -43,11 +54,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01DC49E22200E961004B68EC /* authchanger-tests */ = {
+			isa = PBXGroup;
+			children = (
+				01DC49E32200E961004B68EC /* authchanger_tests.swift */,
+				01DC49E52200E961004B68EC /* Info.plist */,
+			);
+			path = "authchanger-tests";
+			sourceTree = "<group>";
+		};
 		1A9553301FE4AD3200DB543F = {
 			isa = PBXGroup;
 			children = (
 				1A387C4320D368FD00CF35EE /* README.md */,
 				1A95533B1FE4AD3200DB543F /* authchanger */,
+				01DC49E22200E961004B68EC /* authchanger-tests */,
 				1A95533A1FE4AD3200DB543F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				1A9553391FE4AD3200DB543F /* authchanger */,
+				01DC49E12200E961004B68EC /* authchanger-tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,6 +95,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		01DC49E02200E961004B68EC /* authchanger-tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01DC49E82200E961004B68EC /* Build configuration list for PBXNativeTarget "authchanger-tests" */;
+			buildPhases = (
+				01DC49DD2200E961004B68EC /* Sources */,
+				01DC49DE2200E961004B68EC /* Frameworks */,
+				01DC49DF2200E961004B68EC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "authchanger-tests";
+			productName = "authchanger-tests";
+			productReference = 01DC49E12200E961004B68EC /* authchanger-tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		1A9553381FE4AD3200DB543F /* authchanger */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1A9553401FE4AD3200DB543F /* Build configuration list for PBXNativeTarget "authchanger" */;
@@ -96,10 +135,14 @@
 		1A9553311FE4AD3200DB543F /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0920;
+				LastSwiftUpdateCheck = 1010;
 				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = "Orchard & Grove";
 				TargetAttributes = {
+					01DC49E02200E961004B68EC = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+					};
 					1A9553381FE4AD3200DB543F = {
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 0920;
@@ -120,11 +163,30 @@
 			projectRoot = "";
 			targets = (
 				1A9553381FE4AD3200DB543F /* authchanger */,
+				01DC49E02200E961004B68EC /* authchanger-tests */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		01DC49DF2200E961004B68EC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		01DC49DD2200E961004B68EC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01DC49E42200E961004B68EC /* authchanger_tests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1A9553351FE4AD3200DB543F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -138,6 +200,41 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		01DC49E62200E961004B68EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = VRPY9KHGX6;
+				INFOPLIST_FILE = "authchanger-tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "menu.nomad.authchanger-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Debug;
+		};
+		01DC49E72200E961004B68EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = VRPY9KHGX6;
+				INFOPLIST_FILE = "authchanger-tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "menu.nomad.authchanger-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Release;
+		};
 		1A95533E1FE4AD3200DB543F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -279,6 +376,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		01DC49E82200E961004B68EC /* Build configuration list for PBXNativeTarget "authchanger-tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01DC49E62200E961004B68EC /* Debug */,
+				01DC49E72200E961004B68EC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1A9553341FE4AD3200DB543F /* Build configuration list for PBXProject "authchanger" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
