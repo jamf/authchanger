@@ -287,8 +287,9 @@ if argString.contains("-PREAUTH") {
 if argString.contains("-POSTAUTH") {
     var tmpEditingConfigurationMech = editingConfiguration["system.login.console"]
     var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
+    var additionIndex = editingMech.count
     for mech in postAuthMechs {
-        editingMech.append(mech)
+        editingMech.insert(mech, at: additionIndex)
     }
     tmpEditingConfigurationMech?["mechanisms"] = editingMech as AnyObject
     editingConfiguration["system.login.console"] = tmpEditingConfigurationMech
