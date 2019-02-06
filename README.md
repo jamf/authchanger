@@ -24,8 +24,8 @@ Note: The -CustomRule parameter will change the class the rule from "rule" to "e
 
 ### Experimental options for working with Admin authorization:
 
-* -SysPrefs       : enables Azure authentication for the Network Preference Pane
-* -SysPrefsReset  : removes Azure authentication for the Network Preference Pane
+* -SysPrefs       : enables OIDC authentication for the Network Preference Pane
+* -SysPrefsReset  : removes OIDC authentication for the Network Preference Pane
 
 ### Experimental options for working with sudo authorization:
 

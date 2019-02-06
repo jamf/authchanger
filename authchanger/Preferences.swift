@@ -12,7 +12,7 @@ class Preferences {
     
     // New Hotness -Johan
     
-    let version = "2.0.2"
+    let version = "2.0.3"
     
     let AD = [
         "impactedEntries": ["system.login.console"],
@@ -52,7 +52,7 @@ class Preferences {
         "rule": [
             "version" : 1 as Int,
             "comment" : "Rule to allow for Azure authentication" as String,
-            "mechanisms" : [ "NoMADLoginAzure:AuthUI" ] as [String],
+            "mechanisms" : [ "JamfConnectLogin:CheckOIDC" ] as [String],
             "class" : "evaluate-mechanisms" as String,
             "shared" : true as Bool,
             "tries" : 10000 as Int
