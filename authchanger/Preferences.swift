@@ -12,7 +12,7 @@ class Preferences {
     
     // New Hotness -Johan
     
-    let version = "2.0.3"
+    let version = "2.1.0"
     
     let AD = [
         "impactedEntries": ["system.login.console"],

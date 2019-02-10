@@ -17,7 +17,7 @@ var err = OSStatus.init(0)
 // New Hotness - Johan
 
 // full arguments list as single string
-let argString = CommandLine.arguments.joined(separator: " ").uppercased()
+var argString = CommandLine.arguments.joined(separator: " ").uppercased()
 
 // print help and quit if asked
 if argString.contains("-H") || argString.contains("-HELP") {
@@ -29,6 +29,11 @@ if argString.contains("-H") || argString.contains("-HELP") {
 if argString.contains("-VERSION") {
     print(preferences.version)
     exit(0)
+}
+
+// check if we should pull things from a configuration profile
+if argString.contains("-CONFIGPROFILE") {
+    argString = getConfigurationFromProfile() ?? argString
 }
 
 extension Array where Element: Equatable {
@@ -49,12 +54,10 @@ func getImpactedEntries(arguments: [String]) -> [String]{
         switch(arg.uppercased()){
             
         // All of these parameters edit the same entry
-        case "-AZURE",
-             "-AD",
+        case "-AD",
              "-OKTA",
              "-OIDC",
              "-SETUP",
-             "-PING",
              "-DEMOBILIZE",
              "-PRELOGIN",
              "-PREAUTH",
