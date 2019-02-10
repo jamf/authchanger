@@ -18,6 +18,7 @@ var err = OSStatus.init(0)
 
 // full arguments list as single string
 var argString = CommandLine.arguments.joined(separator: " ").uppercased()
+var argArray = CommandLine.arguments
 
 // print help and quit if asked
 if argString.contains("-H") || argString.contains("-HELP") {
@@ -33,7 +34,19 @@ if argString.contains("-VERSION") {
 
 // check if we should pull things from a configuration profile
 if argString.contains("-CONFIGPROFILE") {
-    argString = getConfigurationFromProfile() ?? argString
+        
+    var delay: Int?
+    for i in 0...(argArray.count - 1) {
+        if argArray[i].uppercased() == "-CONFIGPROFILEDELAY" {
+            if (i + 1) < argArray.count {
+                delay = Int(argArray[i + 1])
+            }
+        }
+    }
+    
+    // replace argString with the string pulled from the config profile
+    argArray = getConfigurationFromProfile(delay: delay) ?? argArray
+    argString = argArray.joined(separator: " ").uppercased()
 }
 
 extension Array where Element: Equatable {
@@ -83,9 +96,9 @@ func getImpactedEntries(arguments: [String]) -> [String]{
                 impactedEntries.appendIfNotContains(domain)
             }
         case "-CUSTOMRULE":
-            let argArrayCap = (CommandLine.arguments).map{$0.uppercased()}
+            let argArrayCap = (argArray).map{$0.uppercased()}
             let argIndex = argArrayCap.firstIndex(of: "-CUSTOMRULE")
-            impactedEntries.appendIfNotContains((CommandLine.arguments)[argIndex! + 1])
+            impactedEntries.appendIfNotContains((argArray)[argIndex! + 1])
         default:
             break
         }
@@ -161,7 +174,7 @@ func authorizationDBPrettyPrint(authDBConfiguration: [String: [String: AnyObject
 }
 
 // Getting the current configuration of the machine for the preferences necessary
-let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(arguments: CommandLine.arguments))
+let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(arguments: argArray))
 
 // Making a copy of the configuraiton to edit
 var editingConfiguration = currentConfiguration as [String: [String: AnyObject]]
@@ -213,14 +226,14 @@ if argString.contains("-DEFAULTJCRIGHT") {
 // this code is dirty..... -Johan
 var preLoginMechs:[String] = [], preAuthMechs:[String] = [], postAuthMechs:[String] = [], customRuleMechs:[String] = []
 if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argString.contains("-POSTAUTH") || argString.contains("-CUSTOMRULE"){
-    let argArrayCap = (CommandLine.arguments).map{$0.uppercased()}
+    let argArrayCap = (argArray).map{$0.uppercased()}
     var i = 1
     while i < argArrayCap.count {
         if argArrayCap[i] == "-PRELOGIN" {
             i += 1
             if i >= argArrayCap.count{break}
             while !(argArrayCap[i]).hasPrefix("-"){
-                preLoginMechs.append((CommandLine.arguments)[i])
+                preLoginMechs.append((argArray)[i])
                 i += 1
                 if i >= argArrayCap.count{break}
             }
@@ -230,7 +243,7 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
             i += 1
             if i >= argArrayCap.count{break}
             while !(argArrayCap[i]).hasPrefix("-"){
-                preAuthMechs.append((CommandLine.arguments)[i])
+                preAuthMechs.append((argArray)[i])
                 i += 1
                 if i >= argArrayCap.count{break}
             }
@@ -240,7 +253,7 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
             i += 1
             if i >= argArrayCap.count{break}
             while !(argArrayCap[i]).hasPrefix("-"){
-                postAuthMechs.append((CommandLine.arguments)[i])
+                postAuthMechs.append((argArray)[i])
                 i += 1
                 if i >= argArrayCap.count{break}
             }
@@ -250,7 +263,7 @@ if argString.contains("-PRELOGIN") || argString.contains("-PREAUTH") || argStrin
             i += 1
             if i >= argArrayCap.count{break}
             while !(argArrayCap[i]).hasPrefix("-"){
-                customRuleMechs.append((CommandLine.arguments)[i])
+                customRuleMechs.append((argArray)[i])
                 i += 1
                 if i >= argArrayCap.count{break}
             }
