@@ -19,8 +19,8 @@ This utility is used for both the open source NoMAD Login AD and the commercial 
 * -Debug          : does a dry run of the changes and prints out what would have happened
 * -CustomRule ["mechanisms" | "rules"] <Mechs/Rules seperated by spaces>
                   : allows the printout of any authorizationDB rule as well as setting of that rule to any custom mechanism/s
-* -ConfigurationProfile : configures `authchanger` to get the configuration from a Configuration Profile
-* -ConfigurationProfileDelay <Integer> : a delay in seconds for `authchanger` to wait for a ConfigurationProfile to appear
+* -ConfigProfile : configures `authchanger` to get the configuration from a Configuration Profile
+* -ConfigProfileDelay <Integer> : a delay in seconds for `authchanger` to wait for a ConfigurationProfile to appear
 
 Note: The -CustomRule parameter will change the class the rule from "rule" to "evaluate-mechanism" if necessary, and vice-versa
 

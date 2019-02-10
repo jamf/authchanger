@@ -14,7 +14,7 @@ fileprivate let kConfigCommand = "command"
 
 func getConfigurationFromProfile(delay: Int?) -> [String]? {
     
-    var configuration: [String:Any]?
+    var configuration: [String:[String:AnyObject]]?
     var command: [String]?
     
     let defaults = UserDefaults.init(suiteName: kConfigDomain)
@@ -23,14 +23,20 @@ func getConfigurationFromProfile(delay: Int?) -> [String]? {
 
     while configuration == nil && command == nil && Int(now.timeIntervalSinceNow) > ((delay ?? 1) * -1){
         
-        configuration = defaults?.object(forKey: kConfigKey) as? [String:Any]
+        configuration = defaults?.object(forKey: kConfigKey) as? [String:[String:AnyObject]]
         command = defaults?.object(forKey: kConfigCommand) as? [String]
-        print(Int(now.timeIntervalSinceNow))
+        
         // run the clock
         RunLoop.current.run(until: now.addingTimeInterval(1))
     }
     
+    if configuration != nil {
+        let authdb = authorizationdb.init()
+        authdb.setBatch(setArray: configuration!)
+    }
+    
     if command != nil {
+        // need to add a first entry to replicate the original args
         return ["authchanger"] + command!
     }
     
