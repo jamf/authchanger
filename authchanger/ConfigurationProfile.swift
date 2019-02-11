@@ -9,7 +9,7 @@
 import Foundation
 
 fileprivate let kConfigDomain = "menu.nomad.authchanger"
-fileprivate let kConfigKey = "rules"
+fileprivate let kConfigKey = "mechanisms"
 fileprivate let kConfigCommand = "command"
 
 func getConfigurationFromProfile(delay: Int?) -> [String]? {
@@ -20,8 +20,14 @@ func getConfigurationFromProfile(delay: Int?) -> [String]? {
     let defaults = UserDefaults.init(suiteName: kConfigDomain)
     
     let now = Date()
+    
+    var forever = false
+    
+    if delay ?? 0 < 0 {
+        forever = true
+    }
 
-    while configuration == nil && command == nil && Int(now.timeIntervalSinceNow) > ((delay ?? 1) * -1){
+    while configuration == nil && command == nil && ( Int(now.timeIntervalSinceNow) > ((delay ?? 1) * -1 ) || forever ) {
         
         configuration = defaults?.object(forKey: kConfigKey) as? [String:[String:AnyObject]]
         command = defaults?.object(forKey: kConfigCommand) as? [String]
@@ -33,6 +39,8 @@ func getConfigurationFromProfile(delay: Int?) -> [String]? {
     if configuration != nil {
         let authdb = authorizationdb.init()
         authdb.setBatch(setArray: configuration!)
+        
+        exit(0)
     }
     
     if command != nil {
@@ -40,5 +48,6 @@ func getConfigurationFromProfile(delay: Int?) -> [String]? {
         return ["authchanger"] + command!
     }
     
-    return command
+    // if we got here 
+    return nil
 }
