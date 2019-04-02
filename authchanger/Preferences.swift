@@ -12,7 +12,7 @@ class Preferences {
     
     // New Hotness -Johan
     
-    let version = "2.0.3"
+    let version = "2.0.4"
     
     let AD = [
         "impactedEntries": ["system.login.console"],
@@ -30,7 +30,7 @@ class Preferences {
     
     let OIDC = [
         "impactedEntries": ["system.login.console"],
-        "frontMechs": ["JamfConnectLogin:CheckOIDC", "JamfConnectLogin:PowerControl,privileged", "JamfConnectLogin:CreateUser,privileged", "JamfConnectLogin:DeMobilize,privileged"],
+        "frontMechs": ["JamfConnectLogin:CheckAzure", "JamfConnectLogin:CheckOIDC", "JamfConnectLogin:PowerControl,privileged", "JamfConnectLogin:CreateUser,privileged", "JamfConnectLogin:DeMobilize,privileged"],
         "endMechs": ["JamfConnectLogin:EnableFDE,privileged", "JamfConnectLogin:SierraFixes,privileged", "JamfConnectLogin:KeychainAdd,privileged"],
         "notifyMech": ["JamfConnectLogin:Notify"]
     ]
