@@ -13,7 +13,7 @@ This utility is used for both the open source NoMAD Login AD and the commercial 
 * -Okta           : sets up NoMAD Login+Okta
 * -OIDC           : sets up Jamf Connect Login for Open ID Connect auth
 * -AD             : sets up NoMAD LoginAD
-* -Demobilize     : sets up NoMAD LoginAD to only demobilze accounts
+* -Demobilize     : sets up the login mechanisms to demobilize the account taking into account any other AD or OIDC setup you are doing
 * -Notify         : adds the DEP Notify addition to the corresponding -AD, -OIDC, -Okta, or -Setup argument
 * -Print          : prints the current list of authorization mechanisms
 * -Debug          : does a dry run of the changes and prints out what would have happened
