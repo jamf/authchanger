@@ -182,8 +182,14 @@ if argString.contains("-AD") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Okta, notify: notifyMechAdd)
 } else if argString.contains("-SETUP") {
     editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Setup, notify: notifyMechAdd)
+}
+
+if argString.contains("-DEMOBILIZE") && argString.contains("-AD") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.DemobilzeAD)
+} else if argString.contains("-DEMOBILIZE") && argString.contains("-OIDC") {
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.DemobilzeOIDC)
 } else if argString.contains("-DEMOBILIZE") {
-    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.Demobilze)
+    editingConfiguration = defaultMechanismAddition(editingConfiguration: editingConfiguration, mechDict: preferences.DemobilzeAD)
 }
 
 // There is some more code minimization that can be done below

@@ -12,7 +12,7 @@ class Preferences {
     
     // New Hotness -Johan
     
-    let version = "2.0.4"
+    let version = "2.0.5"
     
     let AD = [
         "impactedEntries": ["system.login.console"],
@@ -41,9 +41,15 @@ class Preferences {
         "notifyMech": ["NoMADLoginSetup:Notify"]
     ]
     
-    let Demobilze = [
+    let DemobilzeAD = [
         "impactedEntries": ["system.login.console"],
         "frontMechs": ["NoMADLoginAD:DeMobilize,privileged"],
+        "endMechs": []
+    ]
+    
+    let DemobilzeOIDC = [
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["JamfConnectLogin:DeMobilize,privileged"],
         "endMechs": []
     ]
     
@@ -110,7 +116,7 @@ class Preferences {
         -Okta           : sets up NoMAD Login+Okta
         -OIDC           : sets up Jamf Connect Login for Open ID Connect auth
         -AD             : sets up NoMAD LoginAD
-        -Demobilize     : sets up NoMAD LoginAD to only demobilze accounts
+        -Demobilize     : sets up the login mechanisms to demobilize the account taking into account any other AD or OIDC setup you are doing
         -Notify         : adds the DEP Notify addition to the corresponding -AD, -Okta, -OIDC or -Setup argument
         -Print          : prints the current list of authorization mechanisms
         -Debug          : does a dry run of the changes and prints out what would have happened
