@@ -92,40 +92,48 @@ func getImpactedEntries(arguments: [String]) -> [String]{
 
 // default mechanism addition function to avoid the code replication in the initial version
 
-func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]], mechDict: [String: [String]], notify: Bool = false) -> [String: [String: AnyObject]]{
+// default mechanism addition function to avoid the code replication in the initial version
 
+func defaultMechanismAddition(editingConfiguration: [String: [String: AnyObject]], mechDict: [String: [String]], notify: Bool = false) -> [String: [String: AnyObject]] {
+        
     var tmpEditingConfiguration = editingConfiguration
     
-    for impactedMech in (mechDict["impactedEntries"] as! [String]){
+    for impactedMech in (mechDict["impactedEntries"]! as [String]) {
         
         var tmpEditingConfigurationMech = editingConfiguration[impactedMech]
         var editingMech = tmpEditingConfigurationMech?["mechanisms"] as! [String]
         
         // adding the increment for demobilize only setting
         var increment = 1
-        if((mechDict["frontMechs"] as! [String])[0].contains("DeMobilize")){
+        
+        if #available(macOS 10.16, *) {
             increment = 2
+        }
+        
+        if (mechDict["frontMechs"]!)[0].contains("DeMobilize") {
+            increment = increment + 1
         } else {
             // removing the loginwindow mechanism if not only demobilize
-            editingMech.remove(at: 1)
+            editingMech.remove(at: increment)
         }
         
         // adding the front mechanisms
-        var frontMechs = (mechDict["frontMechs"] as! [String]).reversed()
+        let frontMechs = (mechDict["frontMechs"]! as [String]).reversed()
         for addingMech in frontMechs {
             editingMech.insert(addingMech, at: increment)
         }
         
         // adding the notify mechanism if specified
         if notify {
-            let additionIndex = editingMech.firstIndex(of: "builtin:login-begin") as! Int
-            for addingMech in (mechDict["notifyMech"] as! [String]).reversed() {
-                editingMech.insert(addingMech, at: additionIndex)
+            if let additionIndex = editingMech.firstIndex(of: "builtin:login-begin") {
+                for addingMech in (mechDict["notifyMech"]! as [String]).reversed() {
+                    editingMech.insert(addingMech, at: additionIndex)
+                }
             }
         }
         
         // appending the rear mechanisms
-        for addingMech in mechDict["endMechs"] as! [String]{
+        for addingMech in mechDict["endMechs"]! {
             editingMech.append(addingMech)
         }
         
