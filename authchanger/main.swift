@@ -163,11 +163,18 @@ let currentConfiguration = authdb.getBatch(getArray: getImpactedEntries(argument
 // Making a copy of the configuraiton to edit
 var editingConfiguration = currentConfiguration as [String: [String: AnyObject]]
 
-if argString.contains("-RESET") {
-    var tmpEditingConfigurationMech = editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]]
-    tmpEditingConfigurationMech?["mechanisms"] = (preferences.Reset)["defaultMechs"] as AnyObject
-    editingConfiguration[((preferences.Reset)["impactedEntries"] as! [String])[0]] = tmpEditingConfigurationMech
-}
+    if argString.contains("-RESET") {
+        var tmpEditingConfigurationMech = editingConfiguration[((preferences.Reset)["impactedEntries"]! as [String])[0]]
+        if #available(macOS 10.16, *) {
+            tmpEditingConfigurationMech?["mechanisms"] = (preferences.Reset)[Preferences.kDefaultsMech] as  AnyObject
+        } else if #available(macOS 10.14, *) {
+            tmpEditingConfigurationMech?["mechanisms"] = (preferences.Reset)[Preferences.kDefaultMechs1014And15] as  AnyObject
+        } else {
+            tmpEditingConfigurationMech?["mechanisms"] = (preferences.Reset)[Preferences.kDefaultMechs1013] as  AnyObject
+        }
+        
+        editingConfiguration[((preferences.Reset)["impactedEntries"]! as [String])[0]] = tmpEditingConfigurationMech
+    }
 
 var notifyMechAdd: Bool = false
 if argString.contains("-NOTIFY"){
