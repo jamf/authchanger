@@ -12,7 +12,7 @@ class Preferences {
     
     // New Hotness -Johan
     
-    let version = "2.1.0"
+    let version = "2.2.0"
     static let kDefaultsMech = "defaultMechs"
     static let kDefaultMechs1014And15 = "defaultMechs10-14And10-15"
     static let kDefaultMechs1013 = "defaultMechs10-13"
