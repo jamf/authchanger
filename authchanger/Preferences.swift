@@ -13,6 +13,9 @@ class Preferences {
     // New Hotness -Johan
     
     let version = "2.1.0"
+    static let kDefaultsMech = "defaultMechs"
+    static let kDefaultMechs1014And15 = "defaultMechs10-14And10-15"
+    static let kDefaultMechs1013 = "defaultMechs10-13"
     
     let AD = [
         "impactedEntries": ["system.login.console"],
@@ -30,7 +33,7 @@ class Preferences {
     
     let OIDC = [
         "impactedEntries": ["system.login.console"],
-        "frontMechs": ["JamfConnectLogin:CheckOIDC", "JamfConnectLogin:PowerControl,privileged", "JamfConnectLogin:CreateUser,privileged", "JamfConnectLogin:DeMobilize,privileged"],
+        "frontMechs": ["JamfConnectLogin:CheckAzure", "JamfConnectLogin:CheckOIDC", "JamfConnectLogin:PowerControl,privileged", "JamfConnectLogin:CreateUser,privileged", "JamfConnectLogin:DeMobilize,privileged"],
         "endMechs": ["JamfConnectLogin:EnableFDE,privileged", "JamfConnectLogin:SierraFixes,privileged", "JamfConnectLogin:KeychainAdd,privileged"],
         "notifyMech": ["JamfConnectLogin:Notify"]
     ]
@@ -41,9 +44,15 @@ class Preferences {
         "notifyMech": ["NoMADLoginSetup:Notify"]
     ]
     
-    let Demobilze = [
+    let DemobilzeAD = [
         "impactedEntries": ["system.login.console"],
         "frontMechs": ["NoMADLoginAD:DeMobilize,privileged"],
+        "endMechs": []
+    ]
+    
+    let DemobilzeOIDC = [
+        "impactedEntries": ["system.login.console"],
+        "frontMechs": ["JamfConnectLogin:DeMobilize,privileged"],
         "endMechs": []
     ]
     
@@ -77,9 +86,11 @@ class Preferences {
         ]
     ]
     
-    let Reset: [String: Any] = [
+    let Reset = [
         "impactedEntries": ["system.login.console"],
-        "defaultMechs" : ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
+        kDefaultsMech : ["builtin:policy-banner", "builtin:prelogin", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "loginwindow:FDESupport,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"],
+        kDefaultMechs1014And15 : ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "loginwindow:FDESupport,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"],
+        kDefaultMechs1013 : ["builtin:policy-banner", "loginwindow:login", "builtin:login-begin", "builtin:reset-password,privileged", "builtin:forward-login,privileged", "builtin:auto-login,privileged", "builtin:authenticate,privileged", "PKINITMechanism:auth,privileged", "builtin:login-success", "loginwindow:success", "loginwindow:FDESupport,privileged", "HomeDirMechanism:login,privileged", "HomeDirMechanism:status", "MCXMechanism:login", "CryptoTokenKit:login", "loginwindow:done"]
     ]
     
     let DefaultJCRight: [String: Any] = [
@@ -110,7 +121,7 @@ class Preferences {
         -Okta           : sets up NoMAD Login+Okta
         -OIDC           : sets up Jamf Connect Login for Open ID Connect auth
         -AD             : sets up NoMAD LoginAD
-        -Demobilize     : sets up NoMAD LoginAD to only demobilze accounts
+        -Demobilize     : sets up the login mechanisms to demobilize the account taking into account any other AD or OIDC setup you are doing
         -Notify         : adds the DEP Notify addition to the corresponding -AD, -Okta, -OIDC or -Setup argument
         -Print          : prints the current list of authorization mechanisms
         -Debug          : does a dry run of the changes and prints out what would have happened
